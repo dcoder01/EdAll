@@ -6,13 +6,13 @@ app.use(express.json())
 app.use(cookieParser())
 
 //route imports
-// const productRoute=require('./routes/productRoute')
+const assignmentRoute=require('./routes/assignmentRoute.js')
 const userRoute= require('./routes/userRoute')
 // const orderRoute= require('./routes/orderRoute')
 
 // app.use("/api/v1", productRoute)
 app.use('/api/v1', userRoute)
-// app.use('/api/v1', orderRoute)
+app.use('/api/v1', assignmentRoute)
 //middleware for error
 
 app.use(errorMiddleware)

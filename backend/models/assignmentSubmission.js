@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
-const path = require("path");
-const multer = require("multer");
 
-const FILE_UPLOAD_PATH = path.join("/uploads/submissions");
-const assignmentSubmissionSchema = mongoose.Schema(
+
+const assignmentSubmissionSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +19,7 @@ const assignmentSubmissionSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
     },
     submission: {
-      type: "String",
+      type: String,
       required: true,
     },
     grade: {
@@ -31,24 +29,5 @@ const assignmentSubmissionSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "..", FILE_UPLOAD_PATH));
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-assignmentSubmissionSchema.statics.uploadedFile = multer({
-  storage: storage,
-}).single("file");
-assignmentSubmissionSchema.statics.filePath = FILE_UPLOAD_PATH;
-
-const AssignmentSubmission = mongoose.model(
-  "AssignmentSubmission",
-  assignmentSubmissionSchema
-);
+const AssignmentSubmission = mongoose.model("AssignmentSubmission", assignmentSubmissionSchema);
 module.exports = AssignmentSubmission;

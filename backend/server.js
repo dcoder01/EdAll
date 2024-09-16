@@ -1,7 +1,6 @@
 
 const app= require('./app');
-const { dot } = require('node:test/reporters');
-const dotenv = require("dotenv");
+require("dotenv").config();
 
 const connectDatabase=require('./config/database')
 
@@ -17,7 +16,7 @@ process.on("uncaughtException", err=>{
 // console.log(youtube);
 
 //config
-dotenv.config({path: 'config/config.env'})
+// dotenv.config({path: 'config/config.env'})
 
 //connecting database
 connectDatabase(process.env.MONGO_URL)
