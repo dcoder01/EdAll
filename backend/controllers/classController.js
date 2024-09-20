@@ -8,6 +8,7 @@ const ErrorHandler = require('../utils/errorhandler');
 const classModel = require('../models/classModel');
 const userModel = require('../models/userModel');
 
+
 exports.createClass = catchAsyncErrors(async (req, res, next) => {
     const { className, subject, room } = req.body;
     //search if a class already exists with the given class name
@@ -60,7 +61,7 @@ exports.joinClass = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Invalid classId", 404))
     }
     if (requestedClass.createdBy == req.user._id) {
-        return next(new ErrorHandler("Teacher cannot make sumission", 400))
+        return next(new ErrorHandler("Teacher cannot join class", 400))
     }
 
     const currentUser = await userModel.findById(req.user._id);
@@ -116,5 +117,98 @@ exports.fecthClass = catchAsyncErrors(async (req, res, next) => {
         className: classDetails.className,
         subject: classDetails.subject,
         room: classDetails.room,
+    });
+})
+
+
+//fetch all classes with population
+exports.fetchAllClasses = catchAsyncErrors(async (req, res, next) => {
+    const userClasses = await User.findById(req.user.id, "createdClasses joinedClasses")
+        .populate([
+            {
+                path: "createdClasses",
+                select: "createdBy subject className room createdAt",
+                populate: {
+                    path: "createdBy",
+                    select: "_id name",
+                },
+            },
+            {
+                path: "joinedClasses",
+                select: "createdBy subject className room createdAt",
+                populate: {
+                    path: "createdBy",
+                    select: "_id name",
+                },
+            },
+        ]);
+    if (!userClasses) {
+        return next(new ErrorHandler("User not found", 404));
+    }
+
+    userClasses.createdClasses.sort((a, b) => {
+        if (
+            //if return neg the a comes first
+            new Date(a.createdAt).toISOString() >
+            new Date(b.createdAt).toISOString()
+        )
+            return -1;
+        else return 1;
+    });
+    userClasses.joinedClasses.sort((a, b) => {
+        if (
+            new Date(a.createdAt).toISOString() >
+            new Date(b.createdAt).toISOString()
+        )
+            return -1;
+        else return 1;
+    });
+
+    res.status(200).json({
+        success: true,
+        classes: userClasses,
+    });
+})
+
+//fetch users in a class
+
+exports.fectchUsers = catchAsyncErrors(async (req, res, next) => {
+    const classId = req.params.classId;
+
+
+    const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+
+    if (!isValidClassId) {
+
+
+        return next(new ErrorHandler("Invalid classId", 404))
+    }
+    const usersInClass = await classModel.findById(
+        classId,
+        "createdBy users"
+
+    ).populate([
+        {
+            path: "users",
+            select: "email name picture"
+
+        },
+        {
+            path: "createdBy",
+            select: "email name picture"
+        }
+    ])
+   
+    
+    if (!usersInClass) {
+        return next(new ErrorHandler("Invalid classId", 404))
+
+    }
+
+    res.status(200).json({
+        success: true,
+        data: {
+            usersInClass,
+        }
     });
 })
