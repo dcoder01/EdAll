@@ -25,15 +25,15 @@ exports.createClass = catchAsyncErrors(async (req, res, next) => {
         subject,
         room,
         users: [req.user._id],
-      });
-      const user=await userModel.findById(req.user._id);
-      user.createdClasses.push(newClass._id);
-      await user.save();
-     
+    });
+    const user = await userModel.findById(req.user._id);
+    user.createdClasses.push(newClass._id);
+    await user.save();
 
-      res.status(200).json({
+
+    res.status(200).json({
         success: true,
-        class:newClass
+        class: newClass
     })
 
 })
@@ -45,15 +45,15 @@ exports.createClass = catchAsyncErrors(async (req, res, next) => {
 
 
 //jooining class user
-exports.joinClass= catchAsyncErrors(async (req, res, next)=>{
+exports.joinClass = catchAsyncErrors(async (req, res, next) => {
     const requestedClassId = req.body.classId;
     const isValidClassId = mongoose.Types.ObjectId.isValid(requestedClassId);
     if (!isValidClassId) {
-      
-      return next(new ErrorHandler("Invalid classId", 404))
+
+        return next(new ErrorHandler("Invalid classId", 404))
     }
 
-       const requestedClass = await classModel.findById(requestedClassId);
+    const requestedClass = await classModel.findById(requestedClassId);
 
     //if requested class does not exist
     if (!requestedClass) {
@@ -61,25 +61,60 @@ exports.joinClass= catchAsyncErrors(async (req, res, next)=>{
     }
     if (requestedClass.createdBy == req.user._id) {
         return next(new ErrorHandler("Teacher cannot make sumission", 400))
-      }
+    }
 
-      const currentUser = await userModel.findById(req.user._id);
+    const currentUser = await userModel.findById(req.user._id);
 
     //check if user has already joined the clasroom
     if (currentUser.joinedClasses.includes(requestedClassId)) {
         return next(new ErrorHandler("You have already joined the class", 400))
 
     }
-     //all checks are performed, now user can join the classroom
-     currentUser.joinedClasses.push(requestedClass._id);
-     currentUser.save();
- 
-     requestedClass.users.push(currentUser);
-     requestedClass.save();
- 
-     
-     res.status(200).json({
+    //all checks are performed, now user can join the classroom
+    currentUser.joinedClasses.push(requestedClass._id);
+    currentUser.save();
+
+    requestedClass.users.push(currentUser);
+    requestedClass.save();
+
+
+    res.status(200).json({
         success: true,
         joinedClass: requestedClass,
     })
+})
+
+
+//fetch class details--
+exports.fecthClass = catchAsyncErrors(async (req, res, next) => {
+    const classId = req.params.classId;
+
+
+    const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+
+    if (!isValidClassId) {
+
+
+        return next(new ErrorHandler("Invalid classId", 404))
+    }
+    const classDetails = await classModel.findById(
+        classId
+
+    );
+
+    if (!classDetails) {
+        return next(new ErrorHandler("Invalid classId", 404))
+
+    }
+    if (!classDetails.users.includes(req.user._id)
+        && !classDetails.createdBy.equals(req.user._id)) {
+        return next(new ErrorHandler("Invalid classId"), 404)
+
+    }
+    res.status(200).json({
+        createdBy: classDetails.createdBy,
+        className: classDetails.className,
+        subject: classDetails.subject,
+        room: classDetails.room,
+    });
 })
