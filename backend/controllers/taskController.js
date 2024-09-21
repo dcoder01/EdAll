@@ -15,43 +15,43 @@ exports.createAssignment = catchAsyncErrors(async (req, res, next) => {
   // Upload file to Cloudinary
   let fileResult;
   if (file) {
-      fileResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
-              if (error) {
-                  return reject(new ErrorHandler('File upload failed', 500));
-              }
-              resolve(result);
-          }).end(file.buffer);
-      });
+    fileResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
+        if (error) {
+          return reject(new ErrorHandler('File upload failed', 500));
+        }
+        resolve(result);
+      }).end(file.buffer);
+    });
   }
 
-  const {  classId, title, instructions, marks } = req.body;
+  const { classId, title, instructions, marks } = req.body;
 
   // Validate classId
   const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
   if (!isValidClassId) {
-      return next(new ErrorHandler("Invalid Class ID", 404));
+    return next(new ErrorHandler("Invalid Class ID", 404));
   }
 
   // Find the class
   const requestedClass = await classModel.findById(classId);
   if (!requestedClass) {
-      return next(new ErrorHandler("Class not found", 404));
+    return next(new ErrorHandler("Class not found", 404));
   }
 
   // Check if the user is the teacher who created the class
   if (!requestedClass.createdBy.equals(req.user._id)) {
-      return next(new ErrorHandler("Not authorized", 403));
+    return next(new ErrorHandler("Not authorized", 403));
   }
 
   // Create new assignment
   const assignment = new Assignment({
-      createdBy: req.user._id,
-      classId,
-      title,
-      instructions,
-      marks,
-      file: fileResult ? fileResult.secure_url : null, // Save Cloudinary file URL
+    createdBy: req.user._id,
+    classId,
+    title,
+    instructions,
+    marks,
+    file: fileResult ? fileResult.secure_url : null, // Save Cloudinary file URL
   });
 
   // Save assignment and add it to the class
@@ -60,10 +60,10 @@ exports.createAssignment = catchAsyncErrors(async (req, res, next) => {
   await requestedClass.save();
 
   res.status(201).json({
-      success: true,
-      data: {
-          createdAssignment: assignment,
-      },
+    success: true,
+    data: {
+      createdAssignment: assignment,
+    },
   });
 });
 
@@ -73,7 +73,7 @@ exports.submitAssignment = async (req, res) => {
     const file = req.file;
 
     const requestedAssignment = await Assignment.findById(req.body.assignmentId);
-   
+
     // Upload file to Cloudinary
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
@@ -86,11 +86,11 @@ exports.submitAssignment = async (req, res) => {
     // console.log("Cloudinary upload result:", result);
     const submissionData = {
       user: req.user._id,
-      createdBy: req.body.createdBy,
+      createdBy: requestedAssignment.createdBy,
       classId: req.body.classId,
       assignmentId: req.body.assignmentId,
       submission: result.secure_url,
-      grade: req.body.grade,
+     
     };
 
 
@@ -131,9 +131,9 @@ exports.fetchAssignment = catchAsyncErrors(async (req, res, next) => {
   });
 
   let hasSubmitted = false;
-    if (usersAssignmentSubmission) {
-      hasSubmitted = true;
-    }
+  if (usersAssignmentSubmission) {
+    hasSubmitted = true;
+  }
 
   res.json({
     data: {
@@ -143,3 +143,33 @@ exports.fetchAssignment = catchAsyncErrors(async (req, res, next) => {
     },
   });
 });
+
+//fetch all pending assignment
+exports.fetchPendingAssignments = catchAsyncErrors(async (req, res, next) => {
+
+  const classId = req.params.classId;
+  const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+  if (!isValidClassId) { return next(new ErrorHandler("Invalid ClassId"), 404) };
+  const allAssignments = await Assignment.find({classId}, "_id title")
+ 
+  // const allSubmissions = await AssignmentSubmission.find({classId}, "assignmentId")
+  const allSubmissions = await AssignmentSubmission.find({ classId, user: req.user._id }, "assignmentId");
+
+
+  if (!allAssignments || !allSubmissions)
+    return next(new ErrorHandler("Invalid ClassId"), 404);
+  let pendingAssignments = [];
+  allAssignments.forEach((assignment) => {
+    if (
+      !allSubmissions.find(sub => sub.assignmentId.equals(assignment._id))
+    )
+      pendingAssignments.push(assignment);
+  })
+  res.status(200).json({
+    success: true,
+    data: {
+      pendingAssignments
+    }
+  })
+
+})
