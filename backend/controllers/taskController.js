@@ -90,7 +90,7 @@ exports.submitAssignment = async (req, res) => {
       classId: req.body.classId,
       assignmentId: req.body.assignmentId,
       submission: result.secure_url,
-     
+
     };
 
 
@@ -150,8 +150,8 @@ exports.fetchPendingAssignments = catchAsyncErrors(async (req, res, next) => {
   const classId = req.params.classId;
   const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
   if (!isValidClassId) { return next(new ErrorHandler("Invalid ClassId"), 404) };
-  const allAssignments = await Assignment.find({classId}, "_id title")
- 
+  const allAssignments = await Assignment.find({ classId }, "_id title")
+
   // const allSubmissions = await AssignmentSubmission.find({classId}, "assignmentId")
   const allSubmissions = await AssignmentSubmission.find({ classId, user: req.user._id }, "assignmentId");
 
@@ -172,4 +172,39 @@ exports.fetchPendingAssignments = catchAsyncErrors(async (req, res, next) => {
     }
   })
 
+})
+exports.fetchAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => {
+
+  const assignmentId = req.params.assignmentId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID"), 404)
+  }
+  const assignment = await Assignment.findById(
+    assignmentId
+  ).populate([
+    {
+
+      path: "submissions",
+      select: "user createdBy assignmentId submission createdAt",
+      populate: { path: "user", select: "id name email picture" },
+
+    }
+  ])
+  if(!assignment){
+    return next(new ErrorHandler("Invalid assignment Id"), 404);
+
+  }
+
+    //only teacher can make the request
+    if (!assignment.createdBy.equals(req.user._id)) {
+      return next(new ErrorHandler("Not authorsized"), 401);
+    }
+    res.status(200).json({
+      success:true,
+      data:{
+        submissions:assignment.submissions,
+      }
+    })
 })

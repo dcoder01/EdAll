@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments } = require("../controllers/taskController");
+const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions } = require("../controllers/taskController");
 const multer = require("multer");
 const { isAuthenticatedUser, authorizedRoles} =require('../middleware/auth')
 
@@ -17,4 +17,16 @@ router.post('/submit',isAuthenticatedUser,  upload.single('file'), submitAssignm
 router.get('/fetch/:assignmentId',isAuthenticatedUser, fetchAssignment )
 //fetch pending assignments
 router.get('/fetch/pending/:classId', isAuthenticatedUser, fetchPendingAssignments)
+
+//fetch assignment submissions
+router.get('/submissions/:assignmentId', isAuthenticatedUser, fetchAssignmentSubmissions)
+
+
+
+
+
+
+
+
+
 module.exports = router;
