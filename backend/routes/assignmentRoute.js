@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions } = require("../controllers/taskController");
+const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions } = require("../controllers/taskController");
 const multer = require("multer");
 const { isAuthenticatedUser, authorizedRoles} =require('../middleware/auth')
 
@@ -18,9 +18,12 @@ router.get('/fetch/:assignmentId',isAuthenticatedUser, fetchAssignment )
 //fetch pending assignments
 router.get('/fetch/pending/:classId', isAuthenticatedUser, fetchPendingAssignments)
 
-//fetch assignment submissions
+//view submissions for an assignment
 router.get('/submissions/:assignmentId', isAuthenticatedUser, fetchAssignmentSubmissions)
 
+//fetch assignment submission for paticular assignment of a particular user
+
+router.get('/submission', isAuthenticatedUser, fetchUserAssignmentSubmissions)
 
 
 

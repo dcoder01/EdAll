@@ -173,6 +173,10 @@ exports.fetchPendingAssignments = catchAsyncErrors(async (req, res, next) => {
   })
 
 })
+
+
+//fetch all assignment submissions -- admin 
+//it for the teacher to view submissions for particular assignment
 exports.fetchAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => {
 
   const assignmentId = req.params.assignmentId;
@@ -192,19 +196,57 @@ exports.fetchAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => 
 
     }
   ])
-  if(!assignment){
+  if (!assignment) {
     return next(new ErrorHandler("Invalid assignment Id"), 404);
 
   }
 
-    //only teacher can make the request
-    if (!assignment.createdBy.equals(req.user._id)) {
-      return next(new ErrorHandler("Not authorsized"), 401);
+  //only teacher can make the request
+  if (!assignment.createdBy.equals(req.user._id)) {
+    return next(new ErrorHandler("Not authorsized"), 401);
+  }
+  res.status(200).json({
+    success: true,
+    data: {
+      submissions: assignment.submissions,
     }
-    res.status(200).json({
-      success:true,
-      data:{
-        submissions:assignment.submissions,
-      }
-    })
+  })
+})
+
+//fetch assignment for user
+exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => {
+
+  const assignmentId = req.query.assignmentId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+  const userId = req.query.userId;
+
+
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID"), 404)
+  }
+  const assignmentSubmission = await AssignmentSubmission.findOne({
+    assignmentId,
+    user: userId
+
+  }).populate("user", "name email")
+  if (!assignmentSubmission) {
+    return next(new ErrorHandler("Invalid assignment Id"), 404);
+
+  }
+
+  //only teacher can make the request
+  //student can view his assignment submission only
+  if (
+    !assignmentSubmission.createdBy.equals(req.user._id) &&
+    !assignmentSubmission.user.equals(req.user._id)
+  ) {
+    return next(new ErrorHandler("Not authorized", 401));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      submission: assignmentSubmission,
+    }
+  })
 })
