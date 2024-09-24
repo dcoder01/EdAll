@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions, downloadAssignment } = require("../controllers/taskController");
+const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions, downloadAssignment, downloadAssignmentSubmission } = require("../controllers/taskController");
 const multer = require("multer");
 const { isAuthenticatedUser, authorizedRoles} =require('../middleware/auth');
 const { route } = require("./userRoute");
@@ -29,6 +29,8 @@ router.get('/submission', isAuthenticatedUser, fetchUserAssignmentSubmissions)
 
 //download assignment
 router.get('/download/:assignmentId', isAuthenticatedUser, downloadAssignment)
+//download submission
+router.get('/submission/:submissionId', isAuthenticatedUser, downloadAssignmentSubmission)
 
 
 

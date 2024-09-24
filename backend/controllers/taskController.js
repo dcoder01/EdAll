@@ -274,3 +274,27 @@ exports.downloadAssignment = catchAsyncErrors(async (req, res, next) => {
 
   
 })
+
+//download submission of assignment
+exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) => {
+
+  const submissionId = req.params.submissionId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(submissionId);
+
+
+
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID"), 404)
+  }
+  const requestedSubmission = await AssignmentSubmission.findById(submissionId);
+  if (!requestedSubmission) {
+    return next(new ErrorHandler("Invalid assignment ID"), 404)
+  }
+
+  const fileLink=requestedSubmission.submission;
+  if(!fileLink)  return next(new ErrorHandler("Assignment file not found", 404));
+  res.status(200).redirect(fileLink);
+ 
+
+  
+})
