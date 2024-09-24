@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions } = require("../controllers/taskController");
+const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions, downloadAssignment } = require("../controllers/taskController");
 const multer = require("multer");
-const { isAuthenticatedUser, authorizedRoles} =require('../middleware/auth')
+const { isAuthenticatedUser, authorizedRoles} =require('../middleware/auth');
+const { route } = require("./userRoute");
 
 // Configure multer
 const upload = multer({ storage: multer.memoryStorage() });
@@ -25,6 +26,9 @@ router.get('/submissions/:assignmentId', isAuthenticatedUser, fetchAssignmentSub
 
 router.get('/submission', isAuthenticatedUser, fetchUserAssignmentSubmissions)
 
+
+//download assignment
+router.get('/download/:assignmentId', isAuthenticatedUser, downloadAssignment)
 
 
 

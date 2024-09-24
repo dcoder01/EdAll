@@ -213,7 +213,7 @@ exports.fetchAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => 
   })
 })
 
-//fetch assignment for user
+//fetch assignment submission for user
 exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => {
 
   const assignmentId = req.query.assignmentId;
@@ -249,4 +249,28 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
       submission: assignmentSubmission,
     }
   })
+})
+
+//download assignment
+exports.downloadAssignment = catchAsyncErrors(async (req, res, next) => {
+
+  const assignmentId = req.params.assignmentId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+
+
+
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID"), 404)
+  }
+  const requestedAssignment = await Assignment.findById(assignmentId);
+  if (!requestedAssignment) {
+    return next(new ErrorHandler("Invalid assignment ID"), 404)
+  }
+
+  const fileLink=requestedAssignment.file;
+  if(!fileLink)  return next(new ErrorHandler("Assignment file not found", 404));
+  res.status(200).redirect(fileLink);
+ 
+
+  
 })
