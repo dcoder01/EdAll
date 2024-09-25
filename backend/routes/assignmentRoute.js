@@ -32,7 +32,7 @@ router.get('/download/:assignmentId', isAuthenticatedUser, downloadAssignment)
 //download submission
 router.get('/download/submission/:assignmentId', isAuthenticatedUser, downloadAssignmentSubmission)
 
-
+// router.get('/test/:assignmentId', isAuthenticatedUser, test);
 
 
 

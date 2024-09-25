@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-
+const path = require("path");
+const https = require("https");
+const {URL} = require('url');
 const cloudinary = require("../config/cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Assignment = require("../models/assignment");
@@ -68,7 +70,7 @@ exports.createAssignment = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Function to handle uploading an assignment submission
-exports.submitAssignment =catchAsyncErrors( async (req, res, next) => {
+exports.submitAssignment = catchAsyncErrors(async (req, res, next) => {
 
   const file = req.file;
   const { assignmentId, classId } = req.body;
@@ -107,10 +109,12 @@ exports.submitAssignment =catchAsyncErrors( async (req, res, next) => {
     return next(new ErrorHandler("Already submitted"), 400)
   }
 
-
+  const fileName = `${req.user.name.replace(/\s+/g, '_')}_Assignment_${assignmentId}`;
   // Upload file to Cloudinary
   const fileResult = await new Promise((resolve, reject) => {
-    cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
+    cloudinary.uploader.upload_stream({ resource_type: 'auto',
+      public_id: fileName,
+    }, (error, result) => {
       if (error) {
         return reject(new ErrorHandler('File upload failed', 500));
       }
@@ -299,8 +303,25 @@ exports.downloadAssignment = catchAsyncErrors(async (req, res, next) => {
 
   const fileLink = requestedAssignment.file;
   if (!fileLink) return next(new ErrorHandler("Assignment file not found", 404));
-  res.status(200).redirect(fileLink);
 
+
+  // Extract the file extension and original filename
+  const fileExtension = path.extname(fileLink);
+  const fileName = `${requestedAssignment.title}${fileExtension}`;
+
+  // Download the file from Cloudinary or any other service
+  https.get(fileLink, (fileStream) => {
+    // Set headers to prompt file download
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+    fileStream.pipe(res);
+  }).on('error', (err) => {
+    console.error("Error downloading file:", err);
+    res.status(500).json(
+      {
+        message: "Error downloading file"
+      });
+  });
 
 
 })
@@ -335,10 +356,25 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
     !usersAssignmentSubmission.user.equals(req.user._id) &&
     !usersAssignmentSubmission.createdBy.equals(req.user._id)
   )
-    return next(new ErrorHandler("Not authorized"), 404);
+    return next(new ErrorHandler("Not authorized"), 403);
 
-  const fileLink = requestedSubmission.submission;
+  const fileLink = usersAssignmentSubmission.submission;
   if (!fileLink) return next(new ErrorHandler("Assignment file not found", 404));
-  res.status(200).redirect(fileLink);
+
+
+  const parsedUrl = new URL(fileLink);
+  const fileName = path.basename(parsedUrl.pathname); 
+
+  https.get(fileLink, (fileStream) => {
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+    fileStream.pipe(res);
+  }).on('error', (err) => {
+    console.error("Error downloading file:", err);
+    res.status(500).json({ message: "Error downloading file" });
+  });
+
+
+
 
 })
