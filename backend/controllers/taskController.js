@@ -267,34 +267,48 @@ exports.downloadAssignment = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Invalid assignment ID"), 404)
   }
 
-  const fileLink=requestedAssignment.file;
-  if(!fileLink)  return next(new ErrorHandler("Assignment file not found", 404));
+  const fileLink = requestedAssignment.file;
+  if (!fileLink) return next(new ErrorHandler("Assignment file not found", 404));
   res.status(200).redirect(fileLink);
- 
 
-  
+
+
 })
 
 //download submission of assignment
 exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) => {
 
-  const submissionId = req.params.submissionId;
-  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(submissionId);
+  let userId;
+  //this is for finding the assginment
+  //alternate directly by submission id
+  if (req.query && req.query.userId) {
+    userId = req.query.userId;
+  }
+  else userId = req.user._id;
 
-
-
+  const assignmentId = req.params.assignmentId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
   if (!isValidAssignmentId) {
     return next(new ErrorHandler("Invalid assignment ID"), 404)
   }
-  const requestedSubmission = await AssignmentSubmission.findById(submissionId);
-  if (!requestedSubmission) {
+
+  const requestedAssignment = await Assignment.findById(assignmentId);
+   if (!requestedAssignment) {
     return next(new ErrorHandler("Invalid assignment ID"), 404)
   }
+  const usersAssignmentSubmission = await AssignmentSubmission.findOne({
+    assignmentId,
+    user: userId,
+  });
+//creator and user only can see not other users
+  if (
+    !usersAssignmentSubmission.user.equals(req.user._id) &&
+    !usersAssignmentSubmission.createdBy.equals(req.user._id)
+  )
+  return next(new ErrorHandler("Not authorized"), 404);
 
-  const fileLink=requestedSubmission.submission;
+ const fileLink=usersAssignmentSubmission.submission;
   if(!fileLink)  return next(new ErrorHandler("Assignment file not found", 404));
   res.status(200).redirect(fileLink);
- 
 
-  
 })

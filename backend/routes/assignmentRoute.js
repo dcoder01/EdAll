@@ -30,7 +30,7 @@ router.get('/submission', isAuthenticatedUser, fetchUserAssignmentSubmissions)
 //download assignment
 router.get('/download/:assignmentId', isAuthenticatedUser, downloadAssignment)
 //download submission
-router.get('/submission/:submissionId', isAuthenticatedUser, downloadAssignmentSubmission)
+router.get('/download/submission/:assignmentId', isAuthenticatedUser, downloadAssignmentSubmission)
 
 
 
