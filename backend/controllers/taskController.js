@@ -68,45 +68,75 @@ exports.createAssignment = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Function to handle uploading an assignment submission
-exports.submitAssignment = async (req, res) => {
-  try {
-    const file = req.file;
+exports.submitAssignment =catchAsyncErrors( async (req, res, next) => {
 
-    const requestedAssignment = await Assignment.findById(req.body.assignmentId);
+  const file = req.file;
+  const { assignmentId, classId } = req.body;
 
-    // Upload file to Cloudinary
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(result);
-      }).end(file.buffer);
-    });
-    // console.log("Cloudinary upload result:", result);
-    const submissionData = {
-      user: req.user._id,
-      createdBy: requestedAssignment.createdBy,
-      classId: req.body.classId,
-      assignmentId: req.body.assignmentId,
-      submission: result.secure_url,
-
-    };
-
-
-    const submission = new AssignmentSubmission(submissionData);
-
-
-    await submission.save();
-
-
-    requestedAssignment.submissions.push(submission._id);
-    await requestedAssignment.save();
-    res.status(201).json(submission);
-  } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+  // Check if assignmentId is valid
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID", 404));
   }
-};
+
+  // Check if classId is valid
+  const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+  if (!isValidClassId) {
+    return next(new ErrorHandler("Invalid class ID", 404));
+  }
+  const requestedClass = await classModel.findById(classId);
+  if (!requestedClass) {
+    return next(new ErrorHandler("Invalid class ID", 404));
+  }
+
+  if (requestedClass.createdBy.equals(req.user._id)) {
+    return next(new ErrorHandler("you cannot submit"), 400);
+  }
+  const requestedAssignment = await Assignment.findById(assignmentId);
+  if (!requestedAssignment) {
+    return next(new ErrorHandler("Invalid AssignmentId"), 400);
+
+  }
+  if (!req.file) return next(new ErrorHandler("Please Select a file"), 400);
+
+  const hasSubmitted = await AssignmentSubmission.findOne({
+    user: req.user._id,
+    assignmentId,
+  });
+  if (hasSubmitted) {
+    return next(new ErrorHandler("Already submitted"), 400)
+  }
+
+
+  // Upload file to Cloudinary
+  const fileResult = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
+      if (error) {
+        return reject(new ErrorHandler('File upload failed', 500));
+      }
+      resolve(result);
+    }).end(file.buffer);
+  });
+  // console.log("Cloudinary upload result:", result);
+  const submission = await AssignmentSubmission.create({
+    user: req.user._id,
+    createdBy: requestedClass.createdBy,
+    classId,
+    assignmentId,
+    submission: fileResult.secure_url,
+
+  });
+
+
+  requestedAssignment.submissions.push(submission._id);
+
+  await requestedAssignment.save();
+
+
+  res.status(201).json(submission);
+
+})
+
 
 //function for fetching assignment
 exports.fetchAssignment = catchAsyncErrors(async (req, res, next) => {
@@ -293,22 +323,22 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
   }
 
   const requestedAssignment = await Assignment.findById(assignmentId);
-   if (!requestedAssignment) {
+  if (!requestedAssignment) {
     return next(new ErrorHandler("Invalid assignment ID"), 404)
   }
   const usersAssignmentSubmission = await AssignmentSubmission.findOne({
     assignmentId,
     user: userId,
   });
-//creator and user only can see not other users
+  //creator and user only can see not other users
   if (
     !usersAssignmentSubmission.user.equals(req.user._id) &&
     !usersAssignmentSubmission.createdBy.equals(req.user._id)
   )
-  return next(new ErrorHandler("Not authorized"), 404);
+    return next(new ErrorHandler("Not authorized"), 404);
 
- const fileLink=usersAssignmentSubmission.submission;
-  if(!fileLink)  return next(new ErrorHandler("Assignment file not found", 404));
+  const fileLink = requestedSubmission.submission;
+  if (!fileLink) return next(new ErrorHandler("Assignment file not found", 404));
   res.status(200).redirect(fileLink);
 
 })
