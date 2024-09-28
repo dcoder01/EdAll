@@ -28,10 +28,6 @@ exports.createAnnouncement = catchAsyncErrors(async (req, res, next) => {
 
 })
 
-//fetch announcements of a class
-
-
-
 //delete announcemnet
 
 exports.deleteAnnouncement = catchAsyncErrors(async (req, res, next) => {
