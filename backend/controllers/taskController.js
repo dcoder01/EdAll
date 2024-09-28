@@ -7,6 +7,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Assignment = require("../models/assignment");
 const AssignmentSubmission = require("../models/assignmentSubmission");
 const QuizModel = require("../models/quizModel");
+const QuizSubmission = require("../models/quizSubmission");
 
 const ErrorHandler = require('../utils/errorhandler');
 const classModel = require('../models/classModel');
@@ -414,7 +415,7 @@ exports.createQuiz=catchAsyncErrors(async (req, res, next)=>{
 })
 
 
-
+//fetch all assignments and quizzes
 exports.fetchWorks=catchAsyncErrors(async (req, res, next)=>{
   const classId = req.params.classId;
 
@@ -458,4 +459,54 @@ exports.fetchWorks=catchAsyncErrors(async (req, res, next)=>{
       createdBy:allworks.createdBy//class' creator
     }
   })
+})
+
+//fetch individual quiz along with the user submission
+
+
+exports.fetchQuizInfo=catchAsyncErrors(async (req, res, next)=>{
+  const quizId = req.params.quizId;
+
+  const isValidQuizId = mongoose.Types.ObjectId.isValid(quizId);
+
+  if (!isValidQuizId) {
+    return next(new ErrorHandler("Invalid quizId", 404))
+  }
+  const requestedQuiz = await QuizModel.findById(quizId);
+
+  if (!requestedQuiz) {
+    return next(new ErrorHandler("Invalid quizId", 404))
+
+  }
+
+  //find the submission
+
+  const quizSubmissionByUser= await QuizSubmission.find({
+    user:req.user._id,
+    quizId,
+
+  })
+  let hasSubmitted = false;
+  if (quizSubmissionByUser && quizSubmissionByUser.length > 0) {
+    hasSubmitted = true;
+  }
+
+  //calculate the students score in this quiz (auto-grading)
+  let totalQuizScore = 0;
+  requestedQuiz.questions.forEach(
+    (ques) => (totalQuizScore = totalQuizScore + ques.correctMarks)
+  );
+
+
+   res.status(200).json({
+      data: {
+        totalQuizScore,
+        totalUserScore: hasSubmitted ? quizSubmissionByUser.totalScore : 0,
+        hasSubmitted,
+        title: requestedQuiz.title,
+        createdBy: requestedQuiz.createdBy,
+        questions: requestedQuiz.questions,
+        submission: quizSubmissionByUser ? quizSubmissionByUser : [],
+      },
+    });
 })
