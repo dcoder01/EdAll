@@ -94,21 +94,21 @@ exports.submitAssignment = catchAsyncErrors(async (req, res, next) => {
   }
 
   if (requestedClass.createdBy.equals(req.user._id)) {
-    return next(new ErrorHandler("you cannot submit"), 400);
+    return next(new ErrorHandler("you cannot submit", 401));
   }
   const requestedAssignment = await Assignment.findById(assignmentId);
   if (!requestedAssignment) {
-    return next(new ErrorHandler("Invalid AssignmentId"), 400);
+    return next(new ErrorHandler("Invalid AssignmentId", 400));
 
   }
-  if (!req.file) return next(new ErrorHandler("Please Select a file"), 400);
+  if (!req.file) return next(new ErrorHandler("Please Select a file", 400));
 
   const hasSubmitted = await AssignmentSubmission.findOne({
     user: req.user._id,
     assignmentId,
   });
   if (hasSubmitted) {
-    return next(new ErrorHandler("Already submitted"), 400)
+    return next(new ErrorHandler("Already submitted", 400))
   }
 
   const fileName = `${req.user.name.replace(/\s+/g, '_')}_Assignment_${assignmentId}`;
@@ -185,7 +185,7 @@ exports.fetchPendingAssignments = catchAsyncErrors(async (req, res, next) => {
 
   const classId = req.params.classId;
   const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
-  if (!isValidClassId) { return next(new ErrorHandler("Invalid ClassId"), 404) };
+  if (!isValidClassId) { return next(new ErrorHandler("Invalid ClassId", 404)) };
   const allAssignments = await Assignment.find({ classId }, "_id title")
 
   // const allSubmissions = await AssignmentSubmission.find({classId}, "assignmentId")
@@ -193,7 +193,7 @@ exports.fetchPendingAssignments = catchAsyncErrors(async (req, res, next) => {
 
 
   if (!allAssignments || !allSubmissions)
-    return next(new ErrorHandler("Invalid ClassId"), 404);
+    return next(new ErrorHandler("Invalid ClassId", 404));
   let pendingAssignments = [];
   allAssignments.forEach((assignment) => {
     if (
@@ -219,7 +219,7 @@ exports.fetchAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => 
   const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
 
   if (!isValidAssignmentId) {
-    return next(new ErrorHandler("Invalid assignment ID"), 404)
+    return next(new ErrorHandler("Invalid assignment ID", 404))
   }
   const assignment = await Assignment.findById(
     assignmentId
@@ -233,13 +233,13 @@ exports.fetchAssignmentSubmissions = catchAsyncErrors(async (req, res, next) => 
     }
   ])
   if (!assignment) {
-    return next(new ErrorHandler("Invalid assignment Id"), 404);
+    return next(new ErrorHandler("Invalid assignment Id", 404));
 
   }
 
   //only teacher can make the request
   if (!assignment.createdBy.equals(req.user._id)) {
-    return next(new ErrorHandler("Not authorsized"), 401);
+    return next(new ErrorHandler("Not authorsized", 401));
   }
   res.status(200).json({
     success: true,
@@ -258,7 +258,7 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
 
 
   if (!isValidAssignmentId) {
-    return next(new ErrorHandler("Invalid assignment ID"), 404)
+    return next(new ErrorHandler("Invalid assignment ID", 404))
   }
   const assignmentSubmission = await AssignmentSubmission.findOne({
     assignmentId,
@@ -296,11 +296,11 @@ exports.downloadAssignment = catchAsyncErrors(async (req, res, next) => {
 
 
   if (!isValidAssignmentId) {
-    return next(new ErrorHandler("Invalid assignment ID"), 404)
+    return next(new ErrorHandler("Invalid assignment ID", 404))
   }
   const requestedAssignment = await Assignment.findById(assignmentId);
   if (!requestedAssignment) {
-    return next(new ErrorHandler("Invalid assignment ID"), 404)
+    return next(new ErrorHandler("Invalid assignment ID", 404))
   }
 
   const fileLink = requestedAssignment.file;
@@ -342,12 +342,12 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
   const assignmentId = req.params.assignmentId;
   const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
   if (!isValidAssignmentId) {
-    return next(new ErrorHandler("Invalid assignment ID"), 404)
+    return next(new ErrorHandler("Invalid assignment ID", 404))
   }
 
   const requestedAssignment = await Assignment.findById(assignmentId);
   if (!requestedAssignment) {
-    return next(new ErrorHandler("Invalid assignment ID"), 404)
+    return next(new ErrorHandler("Invalid assignment ID", 404))
   }
   const usersAssignmentSubmission = await AssignmentSubmission.findOne({
     assignmentId,
@@ -358,7 +358,7 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
     !usersAssignmentSubmission.user.equals(req.user._id) &&
     !usersAssignmentSubmission.createdBy.equals(req.user._id)
   )
-    return next(new ErrorHandler("Not authorized"), 403);
+    return next(new ErrorHandler("Not authorized", 401));
 
   const fileLink = usersAssignmentSubmission.submission;
   if (!fileLink) return next(new ErrorHandler("Assignment file not found", 404));
@@ -387,14 +387,39 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
 
 // --------QUIZ-----------------
 
+
+//create quiz
 exports.createQuiz=catchAsyncErrors(async (req, res, next)=>{
   const { classId, questions, title } = req.body;
     const user = req.user._id;
 
     const requestedClassByUser = await classModel.findById(classId);
+    
+    //creator of classroom to create the Quiz
+    if (!requestedClassByUser.createdBy.equals(user)) {
+     return next(new ErrorHandler("Not authorized", 401));
+    }
+    const createdQuiz = await QuizModel.create({
+      title,
+      createdBy: req.user._id,
+      classId,
+      questions,
+    });
+    await requestedClassByUser.quizzes.push(createdQuiz);
+    await requestedClassByUser.save();
+    res.status(200).json({
+      success:true,
 
-    console.log(user);
-    console.log(req.user._id);
+    })
+})
+
+
+
+exports.fetchWorks=catchAsyncErrors(async (req, res, next)=>{
+  const { classId, questions, title } = req.body;
+    const user = req.user._id;
+
+    const requestedClassByUser = await classModel.findById(classId);
     
     //creator of classroom to create the Quiz
     if (!requestedClassByUser.createdBy.equals(user)) {

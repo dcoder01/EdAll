@@ -61,7 +61,7 @@ exports.joinClass = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Invalid classId", 404))
     }
     if (requestedClass.createdBy == req.user._id) {
-        return next(new ErrorHandler("Teacher cannot join class", 400))
+        return next(new ErrorHandler("Teacher cannot join class", 401))
     }
 
     const currentUser = await userModel.findById(req.user._id);
@@ -109,7 +109,7 @@ exports.fecthClass = catchAsyncErrors(async (req, res, next) => {
     }
     if (!classDetails.users.includes(req.user._id)
         && !classDetails.createdBy.equals(req.user._id)) {
-        return next(new ErrorHandler("Invalid classId"), 404)
+        return next(new ErrorHandler("Invalid classId", 404))
 
     }
     res.status(200).json({
