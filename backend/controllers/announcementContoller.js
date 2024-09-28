@@ -11,9 +11,9 @@ exports.createAnnouncement = catchAsyncErrors(async (req, res, next) => {
     const { content } = req.body;
     const classId = req.params.classId;
     const isValidClassId = mongoose.Types.ObjectId.isValid(classId)
-    if (!isValidClassId) return next(new ErrorHandler("Invalid ClassId"), 404);
+    if (!isValidClassId) return next(new ErrorHandler("Invalid ClassId", 404));
     const requestedClass = await classModel.findById(classId);
-    if (!requestedClass) return next(new ErrorHandler("Invalid ClassId"), 404);
+    if (!requestedClass) return next(new ErrorHandler("Invalid ClassId", 404));
     const newAnnouncement = await Announcement.create({
         user: req.user._id,
         classId,
@@ -36,7 +36,7 @@ exports.deleteAnnouncement = catchAsyncErrors(async (req, res, next) => {
     const isValidAnnouncementId =
         mongoose.Types.ObjectId.isValid(announcementId);
     if (!isValidAnnouncementId) {
-        return next(new ErrorHandler("Invalid announcementId"), 404);
+        return next(new ErrorHandler("Invalid announcementId", 404));
 
     }
     const announcementToDelete = await Announcement.findOneAndDelete({
@@ -44,7 +44,7 @@ exports.deleteAnnouncement = catchAsyncErrors(async (req, res, next) => {
         _id: announcementId,
     })
 
-    if (!announcementToDelete) return next(new ErrorHandler("Invalid AssignmentId"), 404);
+    if (!announcementToDelete) return next(new ErrorHandler("Invalid AssignmentId", 404));
 
     res.status(200).json({
         success: true,
@@ -58,7 +58,7 @@ exports.fetchAnnouncements = catchAsyncErrors(async (req, res, next) => {
     const classId = req.params.classId;
     const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
     if (!isValidClassId) {
-        return next(new ErrorHandler("Invalid ClassId"), 404)
+        return next(new ErrorHandler("Invalid ClassId", 404))
 
     }
     const announcements = await classModel.findById(classId)
@@ -75,14 +75,14 @@ exports.fetchAnnouncements = catchAsyncErrors(async (req, res, next) => {
 
 
     if (!announcements) {
-        return next(new ErrorHandler("Invalid ClassId"), 404)
+        return next(new ErrorHandler("Invalid ClassId", 404))
 
     }
     //in class students or the class creater can only
     if(!announcements.users.includes(req.user._id) 
         && announcements.createdBy.equals(req.user._id))
     {
-        return next(new ErrorHandler("Invalid ClassId"), 404)
+        return next(new ErrorHandler("Invalid ClassId", 404))
 
     }
     announcements.announcements.sort((a, b) => {

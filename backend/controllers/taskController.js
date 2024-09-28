@@ -6,6 +6,8 @@ const cloudinary = require("../config/cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Assignment = require("../models/assignment");
 const AssignmentSubmission = require("../models/assignmentSubmission");
+const QuizModel = require("../models/quizModel");
+
 const ErrorHandler = require('../utils/errorhandler');
 const classModel = require('../models/classModel');
 
@@ -377,4 +379,37 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
 
 
 
+})
+
+
+
+
+
+// --------QUIZ-----------------
+
+exports.createQuiz=catchAsyncErrors(async (req, res, next)=>{
+  const { classId, questions, title } = req.body;
+    const user = req.user._id;
+
+    const requestedClassByUser = await classModel.findById(classId);
+
+    console.log(user);
+    console.log(req.user._id);
+    
+    //creator of classroom to create the Quiz
+    if (!requestedClassByUser.createdBy.equals(user)) {
+     return next(new ErrorHandler("Not authorized", 401));
+    }
+    const createdQuiz = await QuizModel.create({
+      title,
+      createdBy: req.user._id,
+      classId,
+      questions,
+    });
+    await requestedClassByUser.quizzes.push(createdQuiz);
+    await requestedClassByUser.save();
+    res.status(200).json({
+      success:true,
+
+    })
 })
