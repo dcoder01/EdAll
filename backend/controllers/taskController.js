@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const path = require("path");
 const https = require("https");
-const {URL} = require('url');
+const { URL } = require('url');
 const cloudinary = require("../config/cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Assignment = require("../models/assignment");
@@ -115,7 +115,8 @@ exports.submitAssignment = catchAsyncErrors(async (req, res, next) => {
   const fileName = `${req.user.name.replace(/\s+/g, '_')}_Assignment_${assignmentId}`;
   // Upload file to Cloudinary
   const fileResult = await new Promise((resolve, reject) => {
-    cloudinary.uploader.upload_stream({ resource_type: 'auto',
+    cloudinary.uploader.upload_stream({
+      resource_type: 'auto',
       public_id: fileName,
     }, (error, result) => {
       if (error) {
@@ -366,7 +367,7 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
 
 
   const parsedUrl = new URL(fileLink);
-  const fileName = path.basename(parsedUrl.pathname); 
+  const fileName = path.basename(parsedUrl.pathname);
 
   https.get(fileLink, (fileStream) => {
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
@@ -390,33 +391,33 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
 
 
 //create quiz
-exports.createQuiz=catchAsyncErrors(async (req, res, next)=>{
+exports.createQuiz = catchAsyncErrors(async (req, res, next) => {
   const { classId, questions, title } = req.body;
-    const user = req.user._id;
+  const user = req.user._id;
 
-    const requestedClassByUser = await classModel.findById(classId);
-    
-    //creator of classroom to create the Quiz
-    if (!requestedClassByUser.createdBy.equals(user)) {
-     return next(new ErrorHandler("Not authorized", 401));
-    }
-    const createdQuiz = await QuizModel.create({
-      title,
-      createdBy: req.user._id,
-      classId,
-      questions,
-    });
-    await requestedClassByUser.quizzes.push(createdQuiz);
-    await requestedClassByUser.save();
-    res.status(200).json({
-      success:true,
+  const requestedClassByUser = await classModel.findById(classId);
 
-    })
+  //creator of classroom to create the Quiz
+  if (!requestedClassByUser.createdBy.equals(user)) {
+    return next(new ErrorHandler("Not authorized", 401));
+  }
+  const createdQuiz = await QuizModel.create({
+    title,
+    createdBy: req.user._id,
+    classId,
+    questions,
+  });
+  await requestedClassByUser.quizzes.push(createdQuiz);
+  await requestedClassByUser.save();
+  res.status(200).json({
+    success: true,
+
+  })
 })
 
 
 //fetch all assignments and quizzes
-exports.fetchWorks=catchAsyncErrors(async (req, res, next)=>{
+exports.fetchWorks = catchAsyncErrors(async (req, res, next) => {
   const classId = req.params.classId;
 
   const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
@@ -432,39 +433,38 @@ exports.fetchWorks=catchAsyncErrors(async (req, res, next)=>{
     return next(new ErrorHandler("Invalid classId", 404))
 
   }
-  allworks.assignments.sort((a, b)=>{
+  allworks.assignments.sort((a, b) => {
     if (
       //if return neg the a comes first
       new Date(a.createdAt).toISOString() >
       new Date(b.createdAt).toISOString()
-  )
+    )
       return -1;
-  else return 1;
+    else return 1;
   })
-  allworks.quizzes.sort((a, b)=>{
+  allworks.quizzes.sort((a, b) => {
     if (
       //if return neg the a comes first
       new Date(a.createdAt).toISOString() >
       new Date(b.createdAt).toISOString()
-  )
+    )
       return -1;
-  else return 1;
+    else return 1;
   })
 
   res.status(200).json({
-    success:true,
-    data:{
-      assignments:allworks.assignments,
-      quizzes:allworks.quizzes,
-      createdBy:allworks.createdBy//class' creator
+    success: true,
+    data: {
+      assignments: allworks.assignments,
+      quizzes: allworks.quizzes,
+      createdBy: allworks.createdBy//class' creator
     }
   })
 })
 
 //fetch individual quiz along with the user submission
 
-
-exports.fetchQuizInfo=catchAsyncErrors(async (req, res, next)=>{
+exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
   const quizId = req.params.quizId;
 
   const isValidQuizId = mongoose.Types.ObjectId.isValid(quizId);
@@ -481,8 +481,8 @@ exports.fetchQuizInfo=catchAsyncErrors(async (req, res, next)=>{
 
   //find the submission
 
-  const quizSubmissionByUser= await QuizSubmission.find({
-    user:req.user._id,
+  const quizSubmissionByUser = await QuizSubmission.find({
+    user: req.user._id,
     quizId,
 
   })
@@ -498,15 +498,53 @@ exports.fetchQuizInfo=catchAsyncErrors(async (req, res, next)=>{
   );
 
 
-   res.status(200).json({
-      data: {
-        totalQuizScore,
-        totalUserScore: hasSubmitted ? quizSubmissionByUser.totalScore : 0,
-        hasSubmitted,
-        title: requestedQuiz.title,
-        createdBy: requestedQuiz.createdBy,
-        questions: requestedQuiz.questions,
-        submission: quizSubmissionByUser ? quizSubmissionByUser : [],
-      },
-    });
+  res.status(200).json({
+    data: {
+      totalQuizScore,
+      totalUserScore: hasSubmitted ? quizSubmissionByUser.totalScore : 0,
+      hasSubmitted,
+      title: requestedQuiz.title,
+      createdBy: requestedQuiz.createdBy,
+      questions: requestedQuiz.questions,
+      submission: quizSubmissionByUser ? quizSubmissionByUser : [],
+    },
+  });
+})
+
+//fetch pending mcq quizes by the student
+exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
+  const classId = req.params.classId;
+  const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+
+  if (!isValidClassId) {
+    return next(new ErrorHandler("Invalid classId", 404));
+  }
+
+  const allQuizzes = await QuizModel.find(
+    {
+      classId,
+    },
+    "_id title"
+  );
+  const allSubmissions = await QuizSubmission.find(
+    {
+      classId, //TODO:add user aslo
+    },
+    "quizId"
+  );
+  if (!allQuizzes) {
+
+    return next(new ErrorHandler("Invalid classId", 404));
+  }
+  let pendingQuizzes = [];
+  allQuizzes.forEach((quiz) => {
+    if (!allSubmissions.find((sub) => sub.quizId.equals(quiz._id)))
+      pendingQuizzes.push(quiz); //--find so no need of break statemet:)
+  });
+  res.json({
+    data: {
+      pendingQuizzes,
+    },
+  });
+
 })

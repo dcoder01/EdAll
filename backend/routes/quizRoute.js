@@ -7,5 +7,6 @@ const { createQuiz, fetchWorks, fetchQuizInfo } = require("../controllers/taskCo
 router.post('/create', isAuthenticatedUser, createQuiz);
 router.get('/fetch/all/:classId', isAuthenticatedUser, fetchWorks);
 router.get('/fetch/:quizId', isAuthenticatedUser, fetchQuizInfo);
+router.get('/fetch/pending/:classId', isAuthenticatedUser, fetchQuizInfo);
 
 module.exports=router
