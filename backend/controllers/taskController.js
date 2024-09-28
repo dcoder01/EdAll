@@ -416,25 +416,46 @@ exports.createQuiz=catchAsyncErrors(async (req, res, next)=>{
 
 
 exports.fetchWorks=catchAsyncErrors(async (req, res, next)=>{
-  const { classId, questions, title } = req.body;
-    const user = req.user._id;
+  const classId = req.params.classId;
 
-    const requestedClassByUser = await classModel.findById(classId);
-    
-    //creator of classroom to create the Quiz
-    if (!requestedClassByUser.createdBy.equals(user)) {
-     return next(new ErrorHandler("Not authorized", 401));
+  const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+
+  if (!isValidClassId) {
+    return next(new ErrorHandler("Invalid classId", 404))
+  }
+  const allworks = await classModel.findById(classId).populate(
+    "quizzes assignments"
+  );
+
+  if (!allworks) {
+    return next(new ErrorHandler("Invalid classId", 404))
+
+  }
+  allworks.assignments.sort((a, b)=>{
+    if (
+      //if return neg the a comes first
+      new Date(a.createdAt).toISOString() >
+      new Date(b.createdAt).toISOString()
+  )
+      return -1;
+  else return 1;
+  })
+  allworks.quizzes.sort((a, b)=>{
+    if (
+      //if return neg the a comes first
+      new Date(a.createdAt).toISOString() >
+      new Date(b.createdAt).toISOString()
+  )
+      return -1;
+  else return 1;
+  })
+
+  res.status(200).json({
+    success:true,
+    data:{
+      assignments:allworks.assignments,
+      quizzes:allworks.quizzes,
+      createdBy:allworks.createdBy//class' creator
     }
-    const createdQuiz = await QuizModel.create({
-      title,
-      createdBy: req.user._id,
-      classId,
-      questions,
-    });
-    await requestedClassByUser.quizzes.push(createdQuiz);
-    await requestedClassByUser.save();
-    res.status(200).json({
-      success:true,
-
-    })
+  })
 })
