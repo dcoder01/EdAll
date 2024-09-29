@@ -554,10 +554,10 @@ exports.fetchPendingQuizes = catchAsyncErrors(async (req, res, next) => {
 //submit quiz
 exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
 
-  const {quizId} = req.body;
+  const { quizId } = req.body;
   const userSubmittedResponse = req.body.submission;
   const isValidQuizId = mongoose.Types.ObjectId.isValid(quizId);
-  
+
   if (!isValidQuizId) {
     return next(new ErrorHandler("Invalid quiz ID", 404));
   }
@@ -585,7 +585,7 @@ exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
   // Auto-grade the quiz submission
 
   const numberOfQuestions = quiz.questions.length;
-  const submission= Array(numberOfQuestions).fill(-1);
+  const submission = Array(numberOfQuestions).fill(-1);
   let totalScore = 0;
   quiz.questions.forEach((question, ind) => {
     let marksScored = 0;
@@ -600,7 +600,7 @@ exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
       marksScored = question.incorrectMarks;
     }
     totalScore += marksScored;
-    submission[ind]= {
+    submission[ind] = {
       questionNumber: ind,
       option: userSubmittedResponse[ind],
       marksScored,
@@ -626,4 +626,47 @@ exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
       submission: newSubmission,
     },
   });
+})
+
+//fetch quiz submissiion by a particular student for the teacher to view
+
+exports.fetchUserQuizSubmissionInfo = catchAsyncErrors(async (req, res, next) => {
+  const quizId = req.query.quizId;
+  const userId = req.query.userId;
+
+  const isValidQuizId = mongoose.Types.ObjectId.isValid(quizId);
+
+  if (!isValidQuizId) {
+    return next(new ErrorHandler("Invalid quizId", 404));
+  }
+  const quizSubmission = await QuizSubmission.findOne({
+    quizId,
+    user: userId,
+  }).populate({
+    path: "user",
+    select: "name email"
+  });
+  if (!quizSubmission)
+    return next(new ErrorHandler("Invalid quizId", 404));
+
+  if (!quizSubmission.createdBy.equals(req.user._id)) {
+    return next(new ErrorHandler("Not authorized", 401));
+  }
+
+  res.status(200).json({
+    data: {
+      submission: quizSubmission,
+    },
+  });
+
+
+})
+
+
+//fetch each students' quiz submissiion for the teacher to view
+
+exports.fetchAllUsersQuizSubmissions = catchAsyncErrors(async (req, res, next) => {
+  
+
+
 })
