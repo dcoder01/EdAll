@@ -512,7 +512,7 @@ exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
 })
 
 //fetch pending mcq quizes by the student
-exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
+exports.fetchPendingQuizes = catchAsyncErrors(async (req, res, next) => {
   const classId = req.params.classId;
   const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
 
@@ -547,4 +547,83 @@ exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
     },
   });
 
+})
+
+
+
+//submit quiz
+exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
+
+  const {quizId} = req.body;
+  const userSubmittedResponse = req.body.submission;
+  const isValidQuizId = mongoose.Types.ObjectId.isValid(quizId);
+  
+  if (!isValidQuizId) {
+    return next(new ErrorHandler("Invalid quiz ID", 404));
+  }
+  const quiz = await QuizModel.findById(quizId);
+  if (!quiz) {
+    return next(new ErrorHandler("Quiz not found", 404));
+  }
+
+
+
+  // Check if the user is the quiz creator (creator can't submit)
+  if (quiz.createdBy.equals(req.user._id)) {
+    return next(new ErrorHandler("Quiz creator cannot submit answers", 400));
+  }
+
+  // Check if the user has already submitted the quiz
+  const existingSubmission = await QuizSubmission.findOne({
+    user: req.user._id,
+    quizId,
+  });
+  if (existingSubmission) {
+    return next(new ErrorHandler("Quiz has already been submitted", 400));
+  }
+
+  // Auto-grade the quiz submission
+
+  const numberOfQuestions = quiz.questions.length;
+  const submission= Array(numberOfQuestions).fill(-1);
+  let totalScore = 0;
+  quiz.questions.forEach((question, ind) => {
+    let marksScored = 0;
+    //userSubmittedResponse is an array coming from frntend
+    if (userSubmittedResponse[ind] === question.correctOption) {
+      marksScored = question.correctMarks;
+    } else if (
+      //-1 means no subission-- 0 marks
+      userSubmittedResponse[ind] !== -1 &&
+      userSubmittedResponse[ind] !== question.correctOption
+    ) {
+      marksScored = question.incorrectMarks;
+    }
+    totalScore += marksScored;
+    submission[ind]= {
+      questionNumber: ind,
+      option: userSubmittedResponse[ind],
+      marksScored,
+    };
+  });
+
+  const newSubmission = await QuizSubmission.create({
+    user: req.user._id,
+    createdBy: quiz.createdBy,
+    classId: quiz.classId,
+    quizId,
+    submission,
+    totalScore,
+  });
+
+  quiz.submissions.push(newSubmission._id);
+  await quiz.save();
+
+
+  res.status(201).json({
+    success: true,
+    data: {
+      submission: newSubmission,
+    },
+  });
 })
