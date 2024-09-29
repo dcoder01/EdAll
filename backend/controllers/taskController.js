@@ -666,7 +666,35 @@ exports.fetchUserQuizSubmissionInfo = catchAsyncErrors(async (req, res, next) =>
 //fetch each students' quiz submissiion for the teacher to view
 
 exports.fetchAllUsersQuizSubmissions = catchAsyncErrors(async (req, res, next) => {
-  
 
+  const quizId = req.params.quizId;
+  const isValidQuizId = mongoose.Types.ObjectId.isValid(quizId);
 
+  if (!isValidQuizId) {
+    return next(new ErrorHandler("Invalid quizId", 404))
+  }
+
+  const quiz = await QuizModel.findById(quizId).populate([
+    {
+      path: "submissions",
+      populate: { path: "user", select: "id name email picture" },
+    },
+  ]);
+
+  if (!quiz) {
+
+    return next(new ErrorHandler("Invalid quizId", 404))
+  }
+  //if the user that is hitting this api is not the creator of quiz, return them error
+
+  if (!quiz.createdBy.equals(req.user._id)) {
+
+    return next(new ErrorHandler("Not Authorized", 401))
+  }
+
+  res.status(200).json({
+    data: {
+      submissions: quiz.submissions,
+    },
+  });
 })
