@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../store/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
+  const navigate = useNavigate(); 
   const { loading, error } = useSelector((state) => state.auth);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    dispatch(login({ email, password }));
+    const data = await dispatch(login({ email, password }));
+
+    if (data?.payload?.success) {
+      toast.success("Logged in successfully!");
+      navigate("/");
+    } else {
+      toast.error(data?.payload || "Login failed. Please check your credentials.");
+    }
   };
 
   return (

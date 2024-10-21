@@ -5,17 +5,22 @@ import axios from 'axios';
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
     const response = await axios.post('/api/v1/user/login', userData);
+    console.log(response);
     return response.data;
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response.data);
+    console.log(error);
+    
+    return thunkAPI.rejectWithValue(error.response?.data?.message|| "login failed");
   }
 });
 
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
   try {
     const response = await axios.post('/api/v1/user/register', userData);
+    console.log(response);
     return response.data;
   } catch (error) {
+    
     return thunkAPI.rejectWithValue(error.response.data);
   }
 });
@@ -57,6 +62,8 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
+        console.log(action.payload);
+        
         state.user = action.payload;
       })
       .addCase(login.rejected, (state, action) => {
