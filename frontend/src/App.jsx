@@ -15,17 +15,19 @@ import { useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 
 function App() {
-  const { user, isAuthenticated, isLoading } = useSelector(
-    (state) => state.auth
-  )
-  console.log(isAuthenticated);
-  console.log(user);
+  // const { user, isAuthenticated, isLoading } = useSelector(
+  //   (state) => state.auth
+  // )
+  // console.log(isAuthenticated);
+  // console.log(user);
   
   // const dispatch = useDispatch()
   // useEffect(() => {
   //   dispatch(CheckAuth())
   // }, [dispatch])
-  if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+  // if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+  const isAuthenticated=false
+  const user=null
   return (
     <>
       <Routes>

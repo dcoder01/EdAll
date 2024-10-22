@@ -1,48 +1,64 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { register } from '../../store/authSlice';
+import CommonForm from "../../components/common/Form";
+// import { useToast } from "@/components/hooks/use-toast";
+import { registerFormControls } from "../../config";
+import { register } from "../../store/authSlice";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
-const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.auth);
-
-  const handleRegister = (e) => {
-    e.preventDefault();
-    dispatch(register({ name, email, password }));
-  };
-
-  return (
-    <div className="register-container">
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-        {error && <p className="error">{error}</p>}
-      </form>
-    </div>
-  
-  );
+const initialState = {
+  userName: "",
+  email: "",
+  password: "",
 };
 
-export default Register;
+function AuthRegister() {
+  const [formData, setFormData] = useState(initialState);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  // const { toast } = useToast();
+
+  function onSubmit(event) {
+    event.preventDefault();
+    dispatch(register(formData)).then((data) => {
+     
+
+      if (data?.payload?.success) {
+        toast.success("signed up successfully!");
+        navigate("/auth/login");
+      } else {
+        toast.error(data?.payload || "Signup failed! Try again.");
+      }
+    });
+  }
+
+
+  return (
+    <div className="mx-auto w-full max-w-md space-y-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Create new account
+        </h1>
+        <p className="mt-2">
+          Already have an account
+          <Link
+            className="font-medium ml-2 text-primary hover:underline"
+            to="/auth/login"
+          >
+            Login
+          </Link>
+        </p>
+      </div>
+      <CommonForm
+        formControls={registerFormControls}
+        buttonText={"Sign Up"}
+        formData={formData}
+        setFormData={setFormData}
+        onSubmit={onSubmit}
+      />
+    </div>
+  );
+}
+
+export default AuthRegister;

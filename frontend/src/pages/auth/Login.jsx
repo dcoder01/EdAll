@@ -1,50 +1,57 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../store/authSlice';
-import { useNavigate } from 'react-router-dom';
+import React from 'react'
+import CommonForm from "../../components/common/Form";
+
+import { loginFormControls } from "../../config";
+import { login } from "../../store/authSlice";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
-
+const initialState={
+  email:"",
+  password:"",
+}
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
-  const { loading, error } = useSelector((state) => state.auth);
-
-  const handleLogin = async (e) => {
+  const navigate=useNavigate();
+  function onSubmit(e){
     e.preventDefault();
-    const data = await dispatch(login({ email, password }));
-
-    if (data?.payload?.success) {
-      toast.success("Logged in successfully!");
-      navigate("/");
-    } else {
-      toast.error(data?.payload || "Login failed. Please check your credentials.");
-    }
-  };
+    dispatch(login(formData)).then((data)=>{
+      if (data?.payload?.success) {
+        toast.success("Logged in successfully!");
+        navigate("/");
+      } else {
+        toast.error(data?.payload || "Login failed! Try again.");
+      }
+    })
+  }
 
   return (
-    <div className="login-container">
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        {error && <p className="error">{error}</p>}
-      </form>
+    <div className="mx-auto w-full max-w-md space-y-6">
+    <div className="text-center">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground">
+      Sign in to your account
+      </h1>
+      <p className="mt-2">
+      Don't have an account
+        <Link
+          className="font-medium ml-2 text-primary hover:underline"
+          to="/auth/register"
+        >
+          Signup
+        </Link>
+      </p>
     </div>
-  );
-};
+    <CommonForm
+      formControls={loginFormControls}
+      buttonText={"Login"}
+      formData={formData}
+      setFormData={setFormData}
+      onSubmit={onSubmit}
+    />
+  </div>
+  )
+}
 
-export default Login;
+export default Login

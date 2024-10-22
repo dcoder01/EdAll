@@ -5,10 +5,10 @@ import axios from 'axios';
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
     const response = await axios.post('/api/v1/user/login', userData);
-    console.log(response);
+    // console.log(response);
     return response.data;
   } catch (error) {
-    console.log(error);
+  
     
     return thunkAPI.rejectWithValue(error.response?.data?.message|| "login failed");
   }
@@ -17,18 +17,20 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
   try {
     const response = await axios.post('/api/v1/user/register', userData);
-    console.log(response);
+    // console.log(response);
     return response.data;
   } catch (error) {
+    // console.log(error);
     
-    return thunkAPI.rejectWithValue(error.response.data);
+    
+    return thunkAPI.rejectWithValue(error.response?.data?.message || "signup failed");
   }
 });
 
 // Thunk for logging out (if needed)
 export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   try {
-    await axios.post('/api/v1/logout');
+    await axios.post('/api/v1/user/logout');
     return {};
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data);
