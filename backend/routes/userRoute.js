@@ -14,6 +14,13 @@ router.get('/admin/users', isAuthenticatedUser,authorizedRoles('admin'), getAllU
 router.get('/admin/user/:id', isAuthenticatedUser,authorizedRoles('admin'), getSingleUsers)
 router.put('/admin/user/:id', isAuthenticatedUser, authorizedRoles('admin'), updateRole)
 router.delete('/admin/user/:id', isAuthenticatedUser, authorizedRoles('admin'), deleteUser)
-
+router.get("/check-auth", isAuthenticatedUser, (req, res) => {
+    const user = req.user;
+    res.status(200).json({
+      success: true,
+      message: "Authenticated user!",
+      user,
+    });
+  });
 
 module.exports=router
