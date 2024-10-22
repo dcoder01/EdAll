@@ -13,21 +13,20 @@ import NotFound from './pages/notFound/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { checkAuth } from './store/authSlice';
+
+
+
 
 function App() {
-  // const { user, isAuthenticated, isLoading } = useSelector(
-  //   (state) => state.auth
-  // )
-  // console.log(isAuthenticated);
-  // console.log(user);
+  const dispatch = useDispatch();
+  let isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const user = useSelector(state => state.auth.user);
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+//dispatch on-->page reload
   
-  // const dispatch = useDispatch()
-  // useEffect(() => {
-  //   dispatch(CheckAuth())
-  // }, [dispatch])
-  // if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
-  const isAuthenticated=false
-  const user=null
   return (
     <>
       <Routes>

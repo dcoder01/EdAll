@@ -6,23 +6,24 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
   try {
     const response = await axios.post('/api/v1/user/login', userData);
     // console.log(response);
+
     return response.data;
   } catch (error) {
-  
-    
-    return thunkAPI.rejectWithValue(error.response?.data?.message|| "login failed");
+
+
+    return thunkAPI.rejectWithValue(error.response?.data?.message || "login failed");
   }
 });
 
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
   try {
     const response = await axios.post('/api/v1/user/register', userData);
-    // console.log(response);
+ 
     return response.data;
   } catch (error) {
     // console.log(error);
-    
-    
+
+
     return thunkAPI.rejectWithValue(error.response?.data?.message || "signup failed");
   }
 });
@@ -31,11 +32,36 @@ export const register = createAsyncThunk('auth/register', async (userData, thunk
 export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   try {
     await axios.post('/api/v1/user/logout');
+ 
     return {};
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data);
   }
 });
+
+
+//chech-auth for cookie storage and validation
+
+export const checkAuth= createAsyncThunk('/auth/checkAuth', async()=>{
+  try {
+    const response = await axios.get('/api/v1/user/check-auth',
+      {
+        withCredentials: true,
+        headers: {
+          "Cache-Control":
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
+ 
+    return response.data;
+  } catch (error) {
+
+    return thunkAPI.rejectWithValue(error.response?.data?.message || "Authentication Failed");
+  }
+})
+
+
 
 // Auth Slice
 const authSlice = createSlice({
@@ -50,9 +76,7 @@ const authSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
     },
-    // clearError: (state) => {
-    //   state.error = null;
-    // },
+  
   },
   extraReducers: (builder) => {
     // Login cases
@@ -64,9 +88,9 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        console.log(action.payload);
-        
-        state.user = action.payload;
+        // console.log(action.payload);
+
+        state.user = action.payload.user;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -83,7 +107,7 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = action.payload.user;
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
@@ -106,6 +130,22 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       });
+      //check auth
+
+    builder
+    .addCase(checkAuth.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(checkAuth.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.user = action.payload.success ? action.payload.user : null;
+      state.isAuthenticated = action.payload.success;
+    })
+    .addCase(checkAuth.rejected, (state, action) => {
+      state.isLoading = false;
+      state.user = null;
+      state.isAuthenticated = false;
+    });
   },
 });
 
