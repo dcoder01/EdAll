@@ -6,7 +6,9 @@ import { login } from "../../store/authSlice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from 'react-toastify';
+import { useToast } from '@/hooks/use-toast';
+// import { toast } from 'react-toastify';
+
 const initialState={
   email:"",
   password:"",
@@ -15,6 +17,7 @@ const Login = () => {
   const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
   const navigate=useNavigate();
+   const { toast } = useToast();
   function onSubmit(e){
     e.preventDefault();
     dispatch(login(formData)).then((data)=>{
@@ -22,7 +25,11 @@ const Login = () => {
         toast.success("Logged in successfully!");
         navigate("/");
       } else {
-        toast.error(data?.payload || "Login failed! Try again.");
+        toast({
+          title: data?.payload || "Login failed! Try again.",
+         
+        })
+        // toast.error(data?.payload || "Login failed! Try again.");
       }
     })
   }
