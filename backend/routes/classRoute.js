@@ -6,13 +6,13 @@ const { createClass, joinClass, fecthClass, fetchAllClasses, fectchUsers} = requ
 
 
 
-router.post("/class/create", isAuthenticatedUser, authorizedRoles('admin'), createClass);
-router.post("/class/join", isAuthenticatedUser,  joinClass);
+router.post("/create", isAuthenticatedUser, authorizedRoles('admin'), createClass);
+router.post("/join", isAuthenticatedUser,  joinClass);
 //router for fetching the classdetails
-router.get('/class/fetch/:classId', isAuthenticatedUser,fecthClass )
+router.get('/fetch/:classId', isAuthenticatedUser,fecthClass )
 //router to fetch class details with population
-router.get('/class/fetch', isAuthenticatedUser, fetchAllClasses)
+router.get('/fetch', isAuthenticatedUser, fetchAllClasses)
 //router for users in a class
-router.get('/class/users/:classId', isAuthenticatedUser, fectchUsers)
+router.get('/users/:classId', isAuthenticatedUser, fectchUsers)
 
 module.exports=router

@@ -123,7 +123,7 @@ exports.fecthClass = catchAsyncErrors(async (req, res, next) => {
 
 //fetch all classes with population
 exports.fetchAllClasses = catchAsyncErrors(async (req, res, next) => {
-    const userClasses = await User.findById(req.user.id, "createdClasses joinedClasses")
+    const userClasses = await userModel.findById(req.user.id, "createdClasses joinedClasses")
         .populate([
             {
                 path: "createdClasses",
