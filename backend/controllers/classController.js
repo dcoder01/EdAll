@@ -30,11 +30,11 @@ exports.createClass = catchAsyncErrors(async (req, res, next) => {
     const user = await userModel.findById(req.user._id);
     user.createdClasses.push(newClass._id);
     await user.save();
-
+    const populatedClass = await classModel.findById(newClass._id).populate('createdBy', 'name');
 
     res.status(200).json({
         success: true,
-        class: newClass
+        class: populatedClass
     })
 
 })
@@ -54,14 +54,14 @@ exports.joinClass = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Invalid classId", 404))
     }
 
-    const requestedClass = await classModel.findById(requestedClassId);
+    const requestedClass = await classModel.findById(requestedClassId).populate('createdBy', 'name');
 
     //if requested class does not exist
     if (!requestedClass) {
         return next(new ErrorHandler("Invalid classId", 404))
     }
-    if (requestedClass.createdBy == req.user._id) {
-        return next(new ErrorHandler("Teacher cannot join class", 401))
+    if (requestedClass.createdBy.toString() === req.user._id.toString()) {
+        return next(new ErrorHandler("Teacher cannot join class", 401));
     }
 
     const currentUser = await userModel.findById(req.user._id);
