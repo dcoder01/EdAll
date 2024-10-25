@@ -31,7 +31,7 @@ export const register = createAsyncThunk('auth/register', async (userData, thunk
 // Thunk for logging out (if needed)
 export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   try {
-    await axios.post('/api/v1/user/logout');
+    await axios.get('/api/v1/user/logout');
  
     return {};
   } catch (error) {

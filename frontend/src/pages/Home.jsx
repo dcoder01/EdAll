@@ -59,8 +59,8 @@ const Home = () => {
                 <div className="w-72 m-6" key={element._id}>
                   <ClassCard
                     classTitle={element.className}
-                    classRoom={element.classRoom}
-                    classTeacher="Teacher"
+                    classRoom={element.room}
+              
                     classCode={element._id}
                     instructorName={element.createdBy.name}
                   />

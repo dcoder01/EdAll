@@ -27,7 +27,7 @@ const Login = () => {
           title: "Logged in successfully"
          
         })
-        navigate("/");
+        navigate("/home");
       } else {
         toast({
           title: data?.payload || "Login failed! Try again.",

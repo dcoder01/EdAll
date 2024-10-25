@@ -3,16 +3,36 @@ import axios from 'axios';
 
 // Async action for fetching classes
 export const fetchClasses = createAsyncThunk('class/fetchClasses', async (_, thunkAPI) => {
-    try {
+  try {
+    const { data } = await axios.get('/api/v1/class/fetch', { withCredentials: true });
+   
+    
+    return data.classes;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || 'Some error occurred');
+  }
+});
 
-      const { data } = await axios.get('/api/v1/class/fetch', { withCredentials: true });
-      return data.classes;
-    } catch (err) {
-     
-      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Some error occurred');
-    }
-  });
-  
+// Async action for creating a class
+export const createClass = createAsyncThunk('class/createClass', async ({ className, subject, room }, thunkAPI) => {
+  try {
+    const { data } = await axios.post('/api/v1/class/create', { className, subject, room }, { withCredentials: true });
+    return data;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to create class');
+  }
+});
+
+// Async action for joining a class
+export const joinClass = createAsyncThunk('class/joinClass', async ({classId}, thunkAPI) => {
+  try {
+    // console.log("Class Code:", classId);
+    const { data } = await axios.post('/api/v1/class/join',  {classId} , { withCredentials: true });
+    return data;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to join class');
+  }
+});
 
 const classSlice = createSlice({
   name: 'class',
@@ -20,6 +40,7 @@ const classSlice = createSlice({
     createdClasses: [],
     joinedClasses: [],
     loading: false,
+    success: false,
     error: null,
   },
   reducers: {},
@@ -27,18 +48,53 @@ const classSlice = createSlice({
     builder
       .addCase(fetchClasses.pending, (state) => {
         state.loading = true;
+        state.success = false;
         state.error = null;
       })
       .addCase(fetchClasses.fulfilled, (state, action) => {
         state.loading = false;
-
-        console.log(action.payload);
+        state.success = true;
+        
         
         state.createdClasses = action.payload.createdClasses;
         state.joinedClasses = action.payload.joinedClasses;
       })
       .addCase(fetchClasses.rejected, (state, action) => {
         state.loading = false;
+        state.success = false;
+        state.error = action.payload;
+      })
+      .addCase(createClass.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(createClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        // console.log(action.payload);
+        state.createdClasses.push(action.payload.class);
+      })
+      .addCase(createClass.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload;
+      })
+      .addCase(joinClass.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(joinClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        // console.log(action.payload); TODO:
+        
+        state.joinedClasses.push(action.payload.joinedClass);
+      })
+      .addCase(joinClass.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
         state.error = action.payload;
       });
   },
