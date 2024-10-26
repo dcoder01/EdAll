@@ -96,9 +96,9 @@ exports.fetchAnnouncements = catchAsyncErrors(async (req, res, next) => {
         else return 1;
     });
     res.status(200).json({
-        data:{
-            announcements:announcements.announcements
-        }
+        
+        announcements:announcements.announcements
+        
     })
 
 
