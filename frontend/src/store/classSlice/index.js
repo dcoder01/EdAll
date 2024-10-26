@@ -34,11 +34,29 @@ export const joinClass = createAsyncThunk('class/joinClass', async ({classId}, t
   }
 });
 
+export const fetchEnterClassDetails = createAsyncThunk(
+  'class/fetchEnterClassDetails',
+  async (classId, thunkAPI) => {
+    try {
+      const { data } = await axios.get(`/api/v1/class/${classId}`, { withCredentials: true });
+      return data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to fetch class details');
+    }
+  }
+);
+
 const classSlice = createSlice({
   name: 'class',
   initialState: {
     createdClasses: [],
     joinedClasses: [],
+    currentClass: {
+      className: '',
+      room: '',
+      subject: '',
+      createdBy: ''
+    },
     loading: false,
     success: false,
     error: null,
@@ -95,6 +113,18 @@ const classSlice = createSlice({
       .addCase(joinClass.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchEnterClassDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEnterClassDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentClass = action.payload;
+      })
+      .addCase(fetchEnterClassDetails.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       });
   },

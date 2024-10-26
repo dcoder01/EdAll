@@ -16,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { checkAuth } from './store/authSlice';
 import HeaderHome from './components/common/HeaderHome';
 import HeaderClass from './components/common/HeaderClass.jsx';
-
+import EnterClass from './pages/class/EnterClass'
 
 
 
@@ -27,14 +27,14 @@ function App() {
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-//dispatch on-->page reload
-const location = useLocation();
-const onHomeScreen=location.pathname.startsWith('/home')
-const onClassScreen = location.pathname.startsWith("/enter");
+  //dispatch on-->page reload
+  const location = useLocation();
+  const onHomeScreen = location.pathname.startsWith('/home')
+  const onClassScreen = location.pathname.startsWith("/enter");
 
   return (
     <div className='app'>
-    <>{onHomeScreen? <HeaderHome/>: onClassScreen && <HeaderClass />}  </>
+      <>{onHomeScreen ? <HeaderHome /> : onClassScreen && <HeaderClass />}  </>
       <Routes>
         <Route path='/auth' element={
           <CheckAuth
@@ -51,12 +51,25 @@ const onClassScreen = location.pathname.startsWith("/enter");
             user={user}
           ><Home /></CheckAuth>
         }></Route>
-        <Route path='/' element={<Navigate  to={'/home'}/>} />
+
+        <Route path='/enter/class/:classId'
+          element={<CheckAuth 
+            isAuthenticated={isAuthenticated}
+            user={user}
+            ><EnterClass/>
+          </CheckAuth>}/>
+
+
+
+
+
+
+        <Route path='/' element={<Navigate to={'/home'} />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
 
       <ToastContainer />
-   
+
     </div>
 
   )
