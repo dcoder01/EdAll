@@ -46,6 +46,12 @@ exports.deleteAnnouncement = catchAsyncErrors(async (req, res, next) => {
 
     if (!announcementToDelete) return next(new ErrorHandler("Invalid AssignmentId", 404));
 
+     
+     await classModel.findByIdAndUpdate(
+        announcementToDelete.classId,
+        { $pull: { announcements: announcementId } },
+        { new: true }
+    );
     res.status(200).json({
         success: true,
         announcementId:announcementId
