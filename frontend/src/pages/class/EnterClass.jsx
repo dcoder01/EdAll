@@ -28,7 +28,6 @@ const EnterClass = () => {
   const { currentClass, loading: classLoading } = useSelector((state) => state.class);
   const { quizzes, assignments, loading: tasksLoading, error: tasksError } =
     useSelector((state) => state.pendingSlice);
-
   useEffect(() => {
     if (!isAuthenticated) {
       return navigate("/auth/login");
@@ -109,7 +108,7 @@ const EnterClass = () => {
           </Card>
 
           {/* Pending Tasks Card */}
-          {currentClass?.createdBy && currentClass.createdBy !== user.id && (
+          {currentClass?.createdBy && currentClass.createdBy !== user._id && (
             <Card>
               <CardHeader>
                 <CardTitle>Pending Tasks</CardTitle>
