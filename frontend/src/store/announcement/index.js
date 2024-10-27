@@ -17,9 +17,11 @@ export const fetchAnnouncements = createAsyncThunk(
 export const createAnnouncement = createAsyncThunk(
   'announcements/createAnnouncement',
   async ({ classId, content }, thunkAPI) => {
+
     try {
       const { data } = await axios.post(`/api/v1/announcement/create/${classId}`, { content }, { withCredentials: true });
-      return data.announcement;
+      thunkAPI.dispatch(fetchAnnouncements(classId));
+      return data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to create announcement');
     }
@@ -29,10 +31,14 @@ export const createAnnouncement = createAsyncThunk(
 // Delete Announcement
 export const deleteAnnouncement = createAsyncThunk(
   'announcements/deleteAnnouncement',
-  async ({ announcementId, classId }, thunkAPI) => {
+  async ( announcementId , thunkAPI) => {
+    // console.log(announcementId);
+    
     try {
-      await axios.delete(`/api/v1/announcement/delete/${announcementId}`, { withCredentials: true });
-      return { announcementId, classId }; // Return the announcementId for deletion confirmation
+     const {data}= await axios.delete(`/api/v1/announcement/delete/${announcementId}`, { withCredentials: true });
+    //  console.log(data);
+      return data; // Return the announcementId for deletion confirmation
+      
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to delete announcement');
     }
@@ -67,7 +73,7 @@ const announcementSlice = createSlice({
         state.success=false;
       })
       .addCase(createAnnouncement.fulfilled, (state, action) => {
-        state.announcements.unshift(action.payload);
+        // state.announcements.unshift(action.payload);
         state.success=true;
       })
       .addCase(deleteAnnouncement.fulfilled, (state, action) => {

@@ -5,7 +5,8 @@ import Spinner from "../common/Spinner";
 import { Button } from "@/components/ui/button"; 
 import { Avatar } from "@/components/ui/avatar"; 
 import { Loader, X } from "lucide-react";
-
+import { useToast } from "@/hooks/use-toast"
+import { toast as ReactToast } from 'react-toastify';
 const UserAnnouncement = ({
   picture,
   name,
@@ -18,9 +19,22 @@ const UserAnnouncement = ({
 }) => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.announcementSlice);
-
+  const toast=useToast()
   const deleteAnnouncementHandler = () => {
-    dispatch(deleteAnnouncement(announcementId, classId));
+
+      
+    dispatch(deleteAnnouncement(announcementId)).then((data)=>{
+      if (data?.payload?.success) {
+        ReactToast.success("Announcement deleted!");
+        
+      } else {
+        toast({
+          title: data?.payload || "Deletion failed",
+         
+        })
+     
+      }
+    });
   };
 
   return (
@@ -47,7 +61,7 @@ const UserAnnouncement = ({
                   <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleClose}
+                  onClick={deleteAnnouncementHandler}
                   className="h-8 w-8 rounded-full"
                 >
                   <X className="h-4 w-4" />

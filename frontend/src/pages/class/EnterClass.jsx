@@ -184,11 +184,17 @@ const EnterClass = () => {
                 </div>
               ) : (
                 <div className="p-4 space-y-4">
+                  
+                  
                   {announcements?.map((announcement) => (
+
+                   
+                  
                     <UserAnnouncement
+                    
                       key={announcement._id}
                       announcementId={announcement._id}
-                      userId={user.id}
+                      userId={user._id}
                       announcementMadeBy={announcement.user._id}
                       name={announcement.user.name}
                       picture={announcement.user.picture}
@@ -196,6 +202,7 @@ const EnterClass = () => {
                       time={announcement.createdAt}
                       classId={classId}
                     />
+                  
                   ))}
                 </div>
               )}

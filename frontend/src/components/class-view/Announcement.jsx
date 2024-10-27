@@ -6,20 +6,36 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from 'react-redux';
 import { createAnnouncement } from '../../store/announcement';
+import { useParams } from 'react-router';
+import { useToast } from "@/hooks/use-toast"
+import { toast as ReactToast } from 'react-toastify';
 
-const Announcement = ({ classId }) => {
+
+const Announcement = () => {
   const dispatch = useDispatch();
   const [content, setContent] = useState("");
-  
-
+  const params = useParams();
+  const classId = params.classId;
+  // console.log(classId);
   const { loading, error, success } = useSelector(
     (state) => state.announcementSlice
   );
 
   const makeNewAnnouncement = () => {
     if (!content.trim()) return;
-    dispatch(createAnnouncement(classId, content)); 
     setContent(""); // Clear content 
+    dispatch(createAnnouncement({classId, content})).then((data)=>{
+      if (data?.payload?.success) {
+        ReactToast.success("Announcement created!");
+        
+      } else {
+        toast({
+          title: data?.payload || "Could not create announcement",
+         
+        })
+     
+      }
+    }); 
   };
 
   return (
@@ -56,7 +72,7 @@ const Announcement = ({ classId }) => {
           </span>
         </div>
         
-        {error && (
+        {/* {error && (
           <Alert variant="destructive" className="w-full">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -65,7 +81,7 @@ const Announcement = ({ classId }) => {
           <Alert className="w-full">
             <AlertDescription>Announcement posted successfully!</AlertDescription>
           </Alert>
-        )}
+        )} */}
       </CardFooter>
     </Card>
   );

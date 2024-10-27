@@ -38,7 +38,7 @@ export const fetchEnterClassDetails = createAsyncThunk(
   'class/fetchEnterClassDetails',
   async (classId, thunkAPI) => {
     try {
-      const { data } = await axios.get(`/api/v1/class/${classId}`, { withCredentials: true });
+      const { data } = await axios.get(`/api/v1/class/fetch/${classId}`, { withCredentials: true });
       return data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to fetch class details');
