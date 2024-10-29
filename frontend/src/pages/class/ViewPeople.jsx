@@ -15,16 +15,17 @@ const ViewPeople = () => {
 
     const { isAuthenticated } = useSelector((state) => state.auth);
     const { loading, error, userInClass, createdBy } = useSelector((state) => state.classUserSlice);
-    let classUsers;
+    
     useEffect(() => {
         if (!isAuthenticated) {
-            navigate("/welcome");
+            navigate("/auth/login");
         } else {
             dispatch(fetchAllUsers(classId));
         }
-        classUsers=  userInClass.filter((user)=>user._id!=createdBy._id);
+       
     }, [ classId, dispatch, navigate]);
-
+    
+   const classUsers = userInClass.filter((user) => user._id !== createdBy._id);
     return (
         <div>
 
