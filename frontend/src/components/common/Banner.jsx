@@ -19,13 +19,15 @@ const Banner = ({
           {customText}
         </p>
       </div>
+      { SVGComponent?(
       <div className="w-1/5 hidden sm:block">
         {typeof SVGComponent === "string" ? (
           <img src={SVGComponent} alt="Banner illustration" className="w-full h-auto" />
         ) : (
           <SVGComponent className="w-full h-auto" />
         )}
-      </div>
+      </div>):null
+      }
     </div>
   );
 };
