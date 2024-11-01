@@ -19,6 +19,7 @@ import HeaderClass from './components/common/HeaderClass.jsx';
 import EnterClass from './pages/class/EnterClass'
 import ViewPeople from './pages/class/ViewPeople';
 import { Loader } from "lucide-react";
+import ClassWork from './pages/class/ClassWork';
 
 
 function App() {
@@ -73,6 +74,13 @@ function App() {
             isAuthenticated={isAuthenticated}
             user={user}
             ><ViewPeople/>
+          </CheckAuth>}/>
+
+
+          <Route path='/enter/class/:classId/classwork' element={<CheckAuth 
+            isAuthenticated={isAuthenticated}
+            user={user}
+            ><ClassWork/>
           </CheckAuth>}/>
 
 
