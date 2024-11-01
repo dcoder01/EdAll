@@ -4,7 +4,7 @@ import classReducer from './classSlice'
 import pendingReducer from './pendingTasks'
 import announcementReducer from "./announcement";
 import classUserReducer from './classUser'
-
+import assignmentReducer from './assignments'
 
 const store = configureStore({
   reducer: {
@@ -13,6 +13,7 @@ const store = configureStore({
     announcementSlice: announcementReducer,
     pendingSlice:pendingReducer,
     classUserSlice:classUserReducer,
+    assignmentSlice:assignmentReducer,
     
   },
 });
