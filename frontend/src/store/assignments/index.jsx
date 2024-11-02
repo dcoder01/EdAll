@@ -4,7 +4,7 @@ export const fetchAssignments=createAsyncThunk('/enter/fetchAssignments', async(
 
     try {
         const {data}=await axios.get(`/api/v1/quiz/fetch/all/${classId}`, {withCredentials:true})
-        console.log(data.data);
+        // console.log(data.data);
   
         return data;
     } catch (error) {

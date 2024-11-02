@@ -47,7 +47,7 @@ const ClassWork = () => {
       
       <div className="container mx-auto my-8 px-4 sm:px-8">
         <div className="my-4 flex justify-center">
-          {user && user.id === createdBy && <Dropdown/>}
+          {user && user._id === createdBy && <Dropdown/>}
         </div>
         
         {loading ? (
