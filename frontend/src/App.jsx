@@ -20,12 +20,13 @@ import EnterClass from './pages/class/EnterClass'
 import ViewPeople from './pages/class/ViewPeople';
 import { Loader } from "lucide-react";
 import ClassWork from './pages/class/ClassWork';
+import CreateQuiz from './pages/quiz/CreateQuiz';
 
 
 function App() {
   const dispatch = useDispatch();
   let isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-  const {user, isLoading} = useSelector(state => state.auth);
+  const { user, isLoading } = useSelector(state => state.auth);
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
@@ -63,25 +64,35 @@ function App() {
 
         {/* class feed */}
         <Route path='/enter/class/:classId'
-          element={<CheckAuth 
+          element={<CheckAuth
             isAuthenticated={isAuthenticated}
             user={user}
-            ><EnterClass/>
-          </CheckAuth>}/>
+          ><EnterClass />
+          </CheckAuth>} />
 
         {/* //view users */}
-        <Route path='/enter/class/:classId/people' element={<CheckAuth 
-            isAuthenticated={isAuthenticated}
-            user={user}
-            ><ViewPeople/>
-          </CheckAuth>}/>
+        <Route path='/enter/class/:classId/people' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><ViewPeople />
+        </CheckAuth>} />
 
 
-          <Route path='/enter/class/:classId/classwork' element={<CheckAuth 
-            isAuthenticated={isAuthenticated}
-            user={user}
-            ><ClassWork/>
-          </CheckAuth>}/>
+        <Route path='/enter/class/:classId/classwork' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><ClassWork />
+        </CheckAuth>} />
+
+
+
+        <Route path='/enter/class/:classId/classwork/create-quiz' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><CreateQuiz />
+        </CheckAuth>} />
+
+
 
 
 

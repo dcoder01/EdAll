@@ -32,7 +32,7 @@ export default function CreateDropdown() {
         <DropdownMenuItem asChild>
           <Link 
             className="w-full cursor-pointer"
-            to={`${pathname}/create-mcq`}
+            to={`${pathname}/create-quiz`}
           >
             MCQ Quiz
           </Link>
