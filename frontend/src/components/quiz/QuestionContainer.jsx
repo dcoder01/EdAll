@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -14,7 +14,7 @@ export default function QuestionContainer({
   correctMarks,
   incorrectMarks,
 }) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="w-full px-4 mb-2">
@@ -54,8 +54,8 @@ export default function QuestionContainer({
                 <p className="font-bold mt-4">
                   Correct Option:{" "}
                   <span className="text-green-600">
-                    {options[correctOption - 1].optionNumber}.{" "}
-                    {options[correctOption - 1].option}
+                    {options[correctOption].optionNumber}.{" "}
+                    {options[correctOption].option}
                   </span>
                 </p>
               </div>
