@@ -21,6 +21,7 @@ import ViewPeople from './pages/class/ViewPeople';
 import { Loader } from "lucide-react";
 import ClassWork from './pages/class/ClassWork';
 import CreateQuiz from './pages/quiz/CreateQuiz';
+import CreateAssignment from './pages/assignment/CreateAssignment';
 
 
 function App() {
@@ -90,6 +91,13 @@ function App() {
           isAuthenticated={isAuthenticated}
           user={user}
         ><CreateQuiz />
+        </CheckAuth>} />
+
+        {/* route for assignment creation */}
+        <Route path='/enter/class/:classId/classwork/create-assignment' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><CreateAssignment/>
         </CheckAuth>} />
 
 

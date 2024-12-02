@@ -26,12 +26,23 @@ export const createQuiz=createAsyncThunk('/enter/createQuiz', async({classId,tit
   
         return data;
     } catch (error) {
-        return thunkAPI.rejectWithValue(error.response?.data?.message|| "failed to fetch the users")
+        return thunkAPI.rejectWithValue(error.response?.data?.message|| "failed to create quiz")
     }
 
 
 })
 
+
+export const createAssignment= createAsyncThunk('/enter/createAssginment', async(formData, thunkAPI)=>{
+    try {
+        const {data}= await axios.post(`/api/v1/assignment/create`, formData, {withCredentials:true});
+        console.log(data);
+        return data;
+        
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message|| "failed to create assignment")
+    }
+})
 
 const AssignmentSlice=createSlice({
     name: 'assignments',
@@ -79,7 +90,19 @@ const AssignmentSlice=createSlice({
             state.loading=false;
             state.error=false;
             state.success=true;
-        })
+        }).addCase(createAssignment.pending, (state)=>{
+            state.loading=true;
+            state.error=null;
+            state.success=false;
+        }).addCase(createAssignment.rejected, (state)=>{
+            state.loading=false;
+            state.error=true;
+            state.success=false;
+        }).addCase(createAssignment.fulfilled, (state)=>{
+            state.loading=false;
+            state.error=false;
+            state.success=true;
+        });
     }
 
 })
