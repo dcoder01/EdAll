@@ -18,8 +18,11 @@ export const fetchAssignments=createAsyncThunk('/enter/fetchAssignments', async(
 export const createQuiz=createAsyncThunk('/enter/createQuiz', async({classId,title,questions},  thunkAPI)=>{
 
     try {
+        // console.log(classId);
+        // console.log(title);
         const {data}=await axios.post(`/api/v1/quiz/create`,{classId,title,questions}, {withCredentials:true})
-        // console.log(data.data);
+       
+        // console.log(data);
   
         return data;
     } catch (error) {
