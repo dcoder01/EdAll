@@ -36,7 +36,7 @@ export const createQuiz=createAsyncThunk('/enter/createQuiz', async({classId,tit
 export const createAssignment= createAsyncThunk('/enter/createAssginment', async(formData, thunkAPI)=>{
     try {
         const {data}= await axios.post(`/api/v1/assignment/create`, formData, {withCredentials:true});
-        console.log(data);
+        // console.log(data);
         return data;
         
     } catch (error) {
