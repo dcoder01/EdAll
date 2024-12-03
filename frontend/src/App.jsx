@@ -22,6 +22,7 @@ import { Loader } from "lucide-react";
 import ClassWork from './pages/class/ClassWork';
 import CreateQuiz from './pages/quiz/CreateQuiz';
 import CreateAssignment from './pages/assignment/CreateAssignment';
+import SubmitAssignment from './pages/assignment/SubmitAssignment';
 
 
 function App() {
@@ -98,6 +99,13 @@ function App() {
           isAuthenticated={isAuthenticated}
           user={user}
         ><CreateAssignment/>
+        </CheckAuth>} />
+
+        {/* route for assignment submission */}
+        <Route path='/enter/class/:classId/classwork/assignment/:assignmentId' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><SubmitAssignment/>
         </CheckAuth>} />
 
 
