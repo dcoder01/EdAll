@@ -21,7 +21,11 @@ exports.createAssignment = catchAsyncErrors(async (req, res, next) => {
   let fileResult;
   if (file) {
     fileResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
+      cloudinary.uploader.upload_stream({
+        resource_type: 'auto',
+        use_filename: true,
+        unique_filename: false,
+      }, (error, result) => {
         if (error) {
           return reject(new ErrorHandler('File upload failed', 500));
         }
@@ -75,8 +79,12 @@ exports.createAssignment = catchAsyncErrors(async (req, res, next) => {
 // Function to handle uploading an assignment submission
 exports.submitAssignment = catchAsyncErrors(async (req, res, next) => {
 
-  const file = req.file;
+  try {
+    const file = req.file;
   const { assignmentId, classId } = req.body;
+  // console.log(assignmentId);
+  // console.log(classId);
+
 
   // Check if assignmentId is valid
   const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
@@ -142,6 +150,9 @@ exports.submitAssignment = catchAsyncErrors(async (req, res, next) => {
 
 
   res.status(201).json(submission);
+  } catch (error) {
+    res.status(500).send(INTERNAL_SERVER_ERROR);
+  }
 
 })
 
@@ -260,6 +271,7 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
 
 
   if (!isValidAssignmentId) {
+        // console.log("b2");
     return next(new ErrorHandler("Invalid assignment ID", 404))
   }
   const assignmentSubmission = await AssignmentSubmission.findOne({
@@ -268,9 +280,13 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
 
   }).populate("user", "name email")
   if (!assignmentSubmission) {
+    // console.log("b1");
+
     return next(new ErrorHandler("Invalid assignment Id"), 404);
 
   }
+  // console.log( assignmentSubmission);
+
 
   //only teacher can make the request
   //student can view his assignment submission only
@@ -278,6 +294,8 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
     !assignmentSubmission.createdBy.equals(req.user._id) &&
     !assignmentSubmission.user.equals(req.user._id)
   ) {
+
+
     return next(new ErrorHandler("Not authorized", 401));
   }
 
@@ -368,7 +386,8 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
 
   const parsedUrl = new URL(fileLink);
   const fileName = path.basename(parsedUrl.pathname);
-
+  // const fileExtension = path.extname(fileLink);
+  // const fileName = `${requestedAssignment.title}${fileExtension}`;
   https.get(fileLink, (fileStream) => {
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
 
@@ -382,6 +401,79 @@ exports.downloadAssignmentSubmission = catchAsyncErrors(async (req, res, next) =
 
 
 })
+
+//get file extesnsion assignment
+
+exports.getFileExtensionAssignment = catchAsyncErrors(async (req, res, next) => {
+  const assignmentId = req.params.assignmentId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID", 404))
+  }
+  const requestedAssignment = await Assignment.findById(assignmentId);
+  if (!requestedAssignment) {
+    return next(new ErrorHandler("Invalid assignment Id", 404))
+  }
+  const fileExtension = path.extname(requestedAssignment.file);
+  res.status(200).json({
+    data: {
+      fileExtension,
+    },
+  });
+
+})
+
+
+
+//get file extension of submission
+exports.getFileExtensionAssignmentSubmission = catchAsyncErrors(async (req, res, next) => {
+  const assignmentId = req.params.assignmentId;
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID", 404))
+  }
+
+  let userId;
+  if (req.query && req.query.userId) {
+    userId = req.query.userId;
+  }
+  else {
+    userId = req.user._id;
+
+  }
+
+  const userSubmission = await AssignmentSubmission.findOne({
+    assignmentId,
+    user: userId
+  })
+
+  if (!userSubmission) {
+
+    return next(new ErrorHandler("Invalid assignment Id", 404))
+  }
+
+  //techer and the the submitter can see this only
+  if (
+    !userSubmission.createdBy.equals(req.user._id) &&
+    !userSubmission.user.equals(req.user._id)
+  ) {
+    // console.log('b2');
+    return next(new ErrorHandler("Not Authorized", 401))
+  }
+
+  const fileExtension = path.extname(userSubmission.submission);
+  // console.log(fileExtension);
+
+  res.status(200).json({
+    data: {
+      fileExtension,
+    },
+  });
+
+})
+
+
+
 
 
 
