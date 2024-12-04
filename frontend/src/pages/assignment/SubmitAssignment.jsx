@@ -1,139 +1,138 @@
-import React, { useEffect, useState } from 'react'
-import Spinner from "../../components/common/Spinner";
-
-import { toast } from "react-toastify";
-import Banner from "../../components/common/Banner";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchEnterClassDetails } from '@/store/classSlice';
+import Spinner from "../../components/common/Spinner";
+import Banner from "../../components/common/Banner";
+import Alert from "@/components/common/Alert";
+import UserAssignmentSubmissionCard from "@/components/assignment/UserAssignmentSubmissionCard";
 import OnlineClassSVG from "../../assets/svg/online_class.svg";
-import Alert from '@/components/common/Alert';
-import UserAssignmentSubmissionCard from '@/components/assignment/UserAssignmentSubmissionCard';
-import { fetchAssignment } from '../../store/assignments';
-
+import {
+  downloadAssignment,
+  downloadSubmission,
+  fetchAssignment,
+  uploadSubmission,
+} from "../../store/assignments";
+import { fetchEnterClassDetails } from "@/store/classSlice";
 
 const SubmitAssignment = () => {
+  const [file, setFile] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const params = useParams();
 
-    const [file, setFile] = useState(null)
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const params = useParams();
+  const classId = params.classId;
+  const assignmentId = params.assignmentId;
 
+  const {
+    createdBy,
+    hasSubmitted,
+    assignment,
+    Fetchloading,
+    Fetchsuccess,
+    Fetcherror,
 
-    const classId = params.classId;
-    const assignmentId = params.assignmentId;
+    downloadedAssignmentLoading,
+    downloadedAssignmentError,
 
+    downloadedSubmissionError,
+    downloadedSubmissionLoading,
 
-    const {
-        createdBy,
-        hasSubmitted,
-        assignment,
-        assignmentCreater,
-        Fetchloading,
-        Fetchsuccess,
-        Fetcherror,
+    uploadSubmissionError,
+    uploadSubmissionLoading,
+    uploadSubmissionSuccess,
+  } = useSelector((state) => state.assignmentSlice);
 
-        downloadedAssignmentLoading,
-        downloadedAssignmentError,
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-        downloadedSubmissionError,
-        downloadedSubmissionLoading,
+  useEffect(() => {
+    dispatch(fetchEnterClassDetails(classId));
+  }, [classId, dispatch]);
 
-        uploadSubmissionError,
-        uploadSubmissionLoading,
-        uploadSubmissionSuccess,
+  useEffect(() => {
+    if (!isAuthenticated) navigate("/auth/login");
+  }, [isAuthenticated, navigate]);
 
-    } = useSelector((state) => state.assignmentSlice);
-    const { isAuthenticated, user } = useSelector((state) => state.auth);
-    // console.log(Fetchsuccess);
-    
-    useEffect(() => {
-        dispatch(fetchEnterClassDetails(classId));
-    }, [classId, dispatch]);
+  useEffect(() => {
+    dispatch(fetchAssignment(assignmentId));
+  }, [assignmentId, dispatch]);
 
-    useEffect(() => {
-        if (!isAuthenticated) navigate("/auth/login");
-        // if (createdBy && createdBy !== user._id) navigate("/home");
-    }, [ isAuthenticated]);
+  const downloadAssignmentHandler = () => {
+    dispatch(downloadAssignment(assignmentId));
+  };
 
+  const downloadAssignmentSubmissionHandler = () => {
+    const userId = user._id;
+    dispatch(downloadSubmission({ assignmentId, userId }));
+  };
 
-    // loading the asssignment details
-    useEffect(() => {
-        dispatch(fetchAssignment(assignmentId));
-    }, [])
+  const uploadAssignmentHandler = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("assignmentId", assignmentId);
+    formData.append("classId", classId);
 
-    const downloadAssignmentHandler = () => {
+    dispatch(uploadSubmission(formData));
+  };
 
-    }
-    const downloadAssignmentSubmissionHandler = () => {
+  return (
+    <>
+      <Banner
+        SVGComponent={OnlineClassSVG}
+        heading={assignment ? assignment.title : "Loading..."}
+        bannerBackground="tornado"
+        customText={assignment && `${assignment.marks} marks`}
+      />
 
-    }
-
-    const uploadAssignmentHandler = () => {
-
-    }
-    return (
-        <>
-            <Banner
-                SVGComponent={OnlineClassSVG}
-                heading={assignment ? assignment.title : "Loading..."}
-                bannerBackground="tornado"
-                customText={assignment && `${assignment.marks} marks`}
-            />
-
-
-
-            <div className="mx-auto mb-16">
-                {Fetchloading ? (
-                    <Spinner />
-                ) : Fetcherror ? (
-                    <Alert color="red" message={error} />
+      <div className="mx-auto mb-16">
+        {Fetchloading ? (
+          <Spinner />
+        ) : Fetcherror ? (
+          <Alert color="red" message={Fetcherror} />
+        ) : (
+          Fetchsuccess && (
+            <div className="flex flex-col gap-4 p-6 bg-white rounded-lg shadow-md sm:w-11/12 sm:mx-auto max-w-lg">
+              <div>
+                <h1 className="text-lg font-semibold">Assignment Details</h1>
+                <p className="text-sm text-gray-600 mt-2">
+                  {assignment.instructions}
+                </p>
+              </div>
+              <Button
+                onClick={downloadAssignmentHandler}
+                className="w-full bg-black text-white"
+              >
+                {downloadedAssignmentLoading ? (
+                  <Spinner />
+                ) : downloadedAssignmentError ? (
+                  <Alert color="red" message={downloadedAssignmentError} />
                 ) : (
-                    Fetchsuccess && (
-                        <div className="flex flex-col gap-4 p-6 bg-white rounded-lg shadow-md sm:w-11/12 sm:mx-auto">
-                            <div>
-                                <h1 className="text-lg font-semibold">Assignment Details</h1>
-                                <p className="text-sm text-gray-600 mt-2">
-                                    {assignment.instructions}
-                                </p>
-                            </div>
-                            <Button
-                                onClick={downloadAssignmentHandler}
-                                className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                            >
-                                {downloadedAssignmentLoading ? (
-                                    <Spinner />
-                                ) : downloadedAssignmentError ? (
-                                    <Alert color="red" message={downloadedAssignmentError} />
-                                ) : (
-                                    "Download Attachment"
-                                )}
-                            </Button>
-                            {user && user.id !== createdBy && (
-                                <UserAssignmentSubmissionCard
-                                    uploadAssignmentHandler={uploadAssignmentHandler}
-                                    setFile={setFile}
-                                    file={file}
-                                    uploadSubmissionLoading={uploadSubmissionLoading}
-                                    uploadSubmissionError={uploadSubmissionError}
-                                    uploadSubmissionSuccess={uploadSubmissionSuccess}
-                                    hasSubmitted={hasSubmitted}
-                                    downloadAssignmentSubmissionHandler={
-                                        downloadAssignmentSubmissionHandler
-                                    }
-                                    downloadedSubmissionLoading={downloadedSubmissionLoading}
-                                    downloadedSubmissionError={downloadedSubmissionError}
-                                />
-                            )}
-                        </div>
-                    )
+                  "Download Attachment"
                 )}
+              </Button>
+              {user && user._id !== createdBy && (
+                <UserAssignmentSubmissionCard
+                  uploadAssignmentHandler={uploadAssignmentHandler}
+                  setFile={setFile}
+                  file={file}
+                  uploadSubmissionLoading={uploadSubmissionLoading}
+                  uploadSubmissionError={uploadSubmissionError}
+                  uploadSubmissionSuccess={uploadSubmissionSuccess}
+                  hasSubmitted={hasSubmitted}
+                  downloadAssignmentSubmissionHandler={
+                    downloadAssignmentSubmissionHandler
+                  }
+                  downloadedSubmissionLoading={downloadedSubmissionLoading}
+                  downloadedSubmissionError={downloadedSubmissionError}
+                />
+              )}
             </div>
+          )
+        )}
+      </div>
+    </>
+  );
+};
 
-        </>
-    )
-
-}
-
-export default SubmitAssignment
+export default SubmitAssignment;
