@@ -10,6 +10,7 @@ import { fetchEnterClassDetails } from '@/store/classSlice';
 import OnlineClassSVG from "../../assets/svg/online_class.svg";
 import Alert from '@/components/common/Alert';
 import UserAssignmentSubmissionCard from '@/components/assignment/UserAssignmentSubmissionCard';
+import { fetchAssignment } from '../../store/assignments';
 
 
 const SubmitAssignment = () => {
@@ -21,18 +22,21 @@ const SubmitAssignment = () => {
 
 
     const classId = params.classId;
-    const { 
+    const assignmentId = params.assignmentId;
+
+
+    const {
         createdBy,
         hasSubmitted,
         assignment,
-
+        assignmentCreater,
         Fetchloading,
-         Fetchsuccess, 
-         Fetcherror,
-         
-        downloadedAssignmentLoading ,
+        Fetchsuccess,
+        Fetcherror,
+
+        downloadedAssignmentLoading,
         downloadedAssignmentError,
-       
+
         downloadedSubmissionError,
         downloadedSubmissionLoading,
 
@@ -40,28 +44,33 @@ const SubmitAssignment = () => {
         uploadSubmissionLoading,
         uploadSubmissionSuccess,
 
-     } = useSelector((state) => state.assignmentSlice);
+    } = useSelector((state) => state.assignmentSlice);
     const { isAuthenticated, user } = useSelector((state) => state.auth);
-
+    // console.log(Fetchsuccess);
+    
     useEffect(() => {
         dispatch(fetchEnterClassDetails(classId));
     }, [classId, dispatch]);
 
     useEffect(() => {
         if (!isAuthenticated) navigate("/auth/login");
-        if (createdBy && createdBy !== user._id) navigate("/home");
-    }, [createdBy, isAuthenticated]);
+        // if (createdBy && createdBy !== user._id) navigate("/home");
+    }, [ isAuthenticated]);
 
 
+    // loading the asssignment details
+    useEffect(() => {
+        dispatch(fetchAssignment(assignmentId));
+    }, [])
 
-    const downloadAssignmentHandler=()=>{
-    
+    const downloadAssignmentHandler = () => {
+
     }
-    const downloadAssignmentSubmissionHandler=()=>{
+    const downloadAssignmentSubmissionHandler = () => {
 
     }
 
-    const uploadAssignmentHandler=()=>{
+    const uploadAssignmentHandler = () => {
 
     }
     return (
