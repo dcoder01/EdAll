@@ -23,6 +23,7 @@ import ClassWork from './pages/class/ClassWork';
 import CreateQuiz from './pages/quiz/CreateQuiz';
 import CreateAssignment from './pages/assignment/CreateAssignment';
 import SubmitAssignment from './pages/assignment/SubmitAssignment';
+import TakeQuiz from './pages/quiz/TakeQuiz';
 
 
 function App() {
@@ -107,6 +108,19 @@ function App() {
           user={user}
         ><SubmitAssignment/>
         </CheckAuth>} />
+
+        {/* take quiz student  */}
+
+        <Route path='/enter/class/:classId/classwork/quiz/:quizId' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><TakeQuiz/>
+        </CheckAuth>} />
+        
+
+
+
+
 
 
 
