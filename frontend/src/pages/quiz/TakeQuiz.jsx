@@ -11,7 +11,7 @@ import { fetchQuiz, submitQuiz } from '@/store/quiz';
 import DisplayQuiz from '@/components/quiz/DisplayQuiz';
 import QuestionContainer from '@/components/quiz/QuestionContainer';
 import {resetSubmitState} from '../../store/quiz/index'
-
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 
 
 
@@ -99,11 +99,11 @@ const TakeQuiz = () => {
 
 
     const componentMarks = (
-        <div className="border rounded shadow-lg p-6 border-green-400 bg-green-200">
-            <h2 className="font-medium">Total Questions: {questions?.length || 0}</h2>
-            <h2 className="font-medium">Total Marks: {totalQuizScore || 0}</h2>
-        </div>
-    );
+        <Card className="p-6 bg-green-200">
+          <h2 className="font-medium">Total Questions: {questions?.length || 0}</h2>
+          <h2 className="font-medium">Total Marks: {totalQuizScore || 0}</h2>
+        </Card>
+      );
 
     const componentIfNotSubmitted = (
 
@@ -125,7 +125,9 @@ const TakeQuiz = () => {
                 ) : null}
             </div>
             {user && user._id !== createdBy && (
+                <div className='pb-4'>
                 <Button onClick={submitQuizHandler}>Submit Quiz</Button>
+                </div>
             )}
 
         </div>
