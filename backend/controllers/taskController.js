@@ -573,13 +573,13 @@ exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
 
   //find the submission
 
-  const quizSubmissionByUser = await QuizSubmission.find({
+  const quizSubmissionByUser = await QuizSubmission.findOne({
     user: req.user._id,
     quizId,
 
   })
   let hasSubmitted = false;
-  if (quizSubmissionByUser && quizSubmissionByUser.length > 0) {
+  if (quizSubmissionByUser ) {
     hasSubmitted = true;
   }
 
@@ -589,6 +589,8 @@ exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
     (ques) => (totalQuizScore = totalQuizScore + ques.correctMarks)
   );
 
+  // console.log(hasSubmitted);
+  
 
   res.status(200).json({
     data: {
@@ -682,7 +684,7 @@ exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
   quiz.questions.forEach((question, ind) => {
     let marksScored = 0;
     //userSubmittedResponse is an array coming from frntend
-    if (userSubmittedResponse[ind] === question.correctOption) {
+    if (userSubmittedResponse[ind] === question.correctOption+1) {
       marksScored = question.correctMarks;
     } else if (
       //-1 means no subission-- 0 marks
