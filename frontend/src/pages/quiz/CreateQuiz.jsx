@@ -11,6 +11,7 @@ import QuestionContainer from "../../components/quiz/QuestionContainer";
 import { fetchEnterClassDetails } from "../../store/classSlice";
 import { createQuiz } from "../../store/assignments";
 import QuestionSVG from "../../assets/svg/question.svg";
+import { toast} from 'react-toastify';
 
 
 
@@ -40,7 +41,12 @@ const CreateQuiz = () => {
 
   const createQuizHandler = () => {
     if (questions.length === 0) return;
-    dispatch(createQuiz({classId, questions, title}));
+    dispatch(createQuiz({classId, questions, title})).then((data)=>{
+        if(data?.payload?.success){
+          toast.success("created quiz successfully!")
+          navigate(`/enter/class/${classId}/classwork`)
+        }
+    })
   };
 
   return (
