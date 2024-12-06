@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const fetchQuiz = createAsyncThunk('/enter/fetchQuiz', async (quizId, thunkAPI) => {
-
     try {
         const { data } = await axios.get(`/api/v1/quiz/fetch/${quizId}`, { withCredentials: true })
         // console.log(data);
@@ -51,7 +50,9 @@ const quizSlice = createSlice({
         title: "",
         questions: [],
         createdBy: null,
-        totalQuizScore: 0
+        totalQuizScore: 0,
+        submission:[],
+        totalUserScore:0,
 
 
     },
@@ -88,6 +89,10 @@ const quizSlice = createSlice({
             state.createdBy=action.payload.data.createdBy;
             state.title=action.payload.data.title;
             state.totalQuizScore=action.payload.data.totalQuizScore;
+            state.totalUserScore=action.payload.data.totalUserScore;
+            state.submission=action.payload.data.submission.submission;
+            // console.log("submission",state.submission);
+            
 
         }).addCase(submitQuiz.pending, (state) => {
             state.submitLoading = true;
