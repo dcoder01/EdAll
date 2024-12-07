@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { act } from "react";
 
 export const fetchQuiz = createAsyncThunk('/enter/fetchQuiz', async (quizId, thunkAPI) => {
     try {
@@ -23,9 +24,23 @@ export const submitQuiz = createAsyncThunk('/enter/submitQuiz', async ({ quizId,
             submission
         }
         // console.log(quizData);
-        
         const { data } = await axios.post(`/api/v1/quiz/submit/`, quizData, { withCredentials: true })
         // console.log(data.data);
+
+        return data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || "failed to fetch the users")
+    }
+
+
+})
+
+export const fetchAllQuizSubmission = createAsyncThunk('/enter/fetchAllQuizSubmission', async (quizId, thunkAPI) => {
+
+    try {
+
+
+        const { data } = await axios.get(`/api/v1/quiz/submissions/${quizId}`, { withCredentials: true })
 
         return data;
     } catch (error) {
@@ -45,23 +60,28 @@ const quizSlice = createSlice({
         submitSuccess: false,
         submitError: null,
         submitLoading: false,
-        
+
         hasSubmitted: false,
         title: "",
         questions: [],
         createdBy: null,
         totalQuizScore: 0,
-        submission:[],
-        totalUserScore:0,
+        submission: [],
+        totalUserScore: 0,
+
+        submissions: [],
+        fetchAllQuizSubmissionLoading: false,
+        fetchAllQuizSubmissionError: null,
+        fetchAllQuizSubmissionSuccess: false,
 
 
     },
     reducers: {
-        resetSubmitState:(state)=> {
-            state.hasSubmitted = false; 
-            state.submitSuccess = false; 
+        resetSubmitState: (state) => {
+            state.hasSubmitted = false;
+            state.submitSuccess = false;
             state.submitError = null;
-            state.submitLoading = false; 
+            state.submitLoading = false;
         },
     },
     extraReducers: (builder) => {
@@ -79,20 +99,20 @@ const quizSlice = createSlice({
             state.error = null;
             state.success = true;
             // console.log(action.payload);
-           
+
             // console.log(action.payload.data);
             // console.log(state.quizDetails.questions);
 
 
             state.hasSubmitted = action.payload.data.hasSubmitted;
-            state.questions=action.payload.data.questions;
-            state.createdBy=action.payload.data.createdBy;
-            state.title=action.payload.data.title;
-            state.totalQuizScore=action.payload.data.totalQuizScore;
-            state.totalUserScore=action.payload.data.totalUserScore;
-            state.submission=action.payload.data.submission.submission;
+            state.questions = action.payload.data.questions;
+            state.createdBy = action.payload.data.createdBy;
+            state.title = action.payload.data.title;
+            state.totalQuizScore = action.payload.data.totalQuizScore;
+            state.totalUserScore = action.payload.data.totalUserScore;
+            state.submission = action.payload.data.submission.submission;
             // console.log("submission",state.submission);
-            
+
 
         }).addCase(submitQuiz.pending, (state) => {
             state.submitLoading = true;
@@ -108,12 +128,24 @@ const quizSlice = createSlice({
             state.submitLoading = false;
             state.submitSuccess = true;
             state.submitError = null;
-
+        }).addCase(fetchAllQuizSubmission.fulfilled, (state, action) => {
+            state.fetchAllQuizSubmissionError = null;
+            state.fetchAllQuizSubmissionLoading = false;
+            state.fetchAllQuizSubmissionSuccess = true;
+            state.submissions = action.payload.data.submissions;
+        }).addCase(fetchAllQuizSubmission.rejected, (state, action) => {
+            state.fetchAllQuizSubmissionError = action.payload;
+            state.fetchAllQuizSubmissionLoading = false;
+            state.fetchAllQuizSubmissionSuccess = false;
+        }).addCase(fetchAllQuizSubmission.pending, (state, action) => {
+            state.fetchAllQuizSubmissionError = null;
+            state.fetchAllQuizSubmissionLoading = true;
+            state.fetchAllQuizSubmissionSuccess = false;
 
 
         })
     }
 
 })
-export const {resetSubmitState}= quizSlice.actions
+export const { resetSubmitState } = quizSlice.actions
 export default quizSlice.reducer;

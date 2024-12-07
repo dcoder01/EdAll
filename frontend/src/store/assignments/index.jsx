@@ -161,7 +161,7 @@ export const fetchAllSubmission = createAsyncThunk('/enter/fetchAllSubmission', 
             `/api/v1/assignment/submissions/${assignmentId}`,
             { withCredentials: true }
         );
-        console.log(data);
+        // console.log(data);
         return data;
 
     } catch (error) {

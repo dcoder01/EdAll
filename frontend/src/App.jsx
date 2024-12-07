@@ -26,6 +26,7 @@ import SubmitAssignment from './pages/assignment/SubmitAssignment';
 import TakeQuiz from './pages/quiz/TakeQuiz';
 import ViewQuizResult from './pages/quiz/ViewQuizResult';
 import ViewAssignmentSubmission from './pages/assignment/ViewAssignmentSubmission';
+import ViewQuizSubmission from './pages/quiz/ViewQuizSubmission';
 
 
 function App() {
@@ -133,6 +134,13 @@ function App() {
           isAuthenticated={isAuthenticated}
           user={user}
         ><ViewAssignmentSubmission/>
+        </CheckAuth>} />
+
+
+        <Route path='/enter/class/:classId/classwork/quiz/:quizId/submissions' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><ViewQuizSubmission/>
         </CheckAuth>} />
         
 
