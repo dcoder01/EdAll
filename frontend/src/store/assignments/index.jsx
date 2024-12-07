@@ -108,7 +108,7 @@ export const downloadAssignment = createAsyncThunk('/enter/downloadAssignment', 
 
 export const downloadSubmission = createAsyncThunk('/enter/downloadSubmission', async ({ userId, assignmentId }, thunkAPI) => {
     try {
-        
+
         const queryString = userId ? `?userId=${userId}` : ``;
         const response = await axios.get(
             `/api/v1/assignment/submission/getFileExtension/${assignmentId}${queryString}`,
@@ -116,7 +116,7 @@ export const downloadSubmission = createAsyncThunk('/enter/downloadSubmission', 
         );
         const fileExtension = response.data?.data?.fileExtension || "";
         // console.log(response.data);
-        
+
         const fileResponse = await axios.get(
             `/api/v1/assignment/download/submission/${assignmentId}${queryString}`,
             { withCredentials: true, responseType: 'blob' }
@@ -153,6 +153,21 @@ export const fetchUserAssignmentSubmission = createAsyncThunk('/enter/fetchUserS
         return thunkAPI.rejectWithValue(error.response?.data?.message || "failed to fetch submission asssignment details")
     }
 })
+export const fetchAllSubmission = createAsyncThunk('/enter/fetchAllSubmission', async (assignmentId, thunkAPI) => {
+    try {
+        // console.log(assignmentId);
+        // console.log(userId);
+        const { data } = await axios.get(
+            `/api/v1/assignment/submissions/${assignmentId}`,
+            { withCredentials: true }
+        );
+        console.log(data);
+        return data;
+
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || "failed to fetch submission asssignment details")
+    }
+})
 
 
 
@@ -163,7 +178,7 @@ const AssignmentSlice = createSlice({
     name: 'assignments',
     initialState: {
         success: false,
-        createdBy: null,
+        createdBy: null, //class creator
         assignmentCreater: null,
         error: null,
         loading: false,
@@ -171,8 +186,8 @@ const AssignmentSlice = createSlice({
         quizzes: [],
         hasSubmitted: false,
         assignment: null,
-        submission:null,
-        fetchUserSubmissionLoading:false,
+        submission: null,
+        fetchUserSubmissionLoading: false,
 
         Fetchloading: false,
         Fetchsuccess: false,
@@ -187,6 +202,13 @@ const AssignmentSlice = createSlice({
         uploadSubmissionError: null,
         uploadSubmissionLoading: false,
         uploadSubmissionSuccess: false,
+
+        fetchAllSubmissionLoading: false,
+        fetchAllSubmissionError: null,
+        fetchAllSubmissionSuccess: false,
+        submissions: [],
+
+
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -295,18 +317,36 @@ const AssignmentSlice = createSlice({
 
                 state.downloadedSubmissionError = null;
                 state.downloadedSubmissionLoading = false;
-               
+
             }).addCase(fetchUserAssignmentSubmission.fulfilled, (state, action) => {
                 state.fetchUserSubmissionLoading = false;
                 state.submission = action.payload.data.submission;
 
             }).addCase(fetchUserAssignmentSubmission.rejected, (state, action) => {
                 state.fetchUserSubmissionLoading = false;
-                
+
 
             }).addCase(fetchUserAssignmentSubmission.pending, (state, action) => {
                 state.fetchUserSubmissionLoading = true;
-               
+
+
+            }).addCase(fetchAllSubmission.pending, (state, action) => {
+                state.fetchAllSubmissionLoading = true;
+                state.fetchAllSubmissionError = null;
+                state.fetchAllSubmissionSuccess = false;
+
+
+            }).addCase(fetchAllSubmission.rejected, (state, action) => {
+                state.fetchAllSubmissionError = action.payload;
+                state.fetchAllSubmissionLoading = false;
+                state.fetchAllSubmissionSuccess = false;
+
+            }).addCase(fetchAllSubmission.fulfilled, (state, action) => {
+                state.fetchAllSubmissionSuccess = true;
+                state.submissions = action.payload.data.submissions;
+                state.fetchAllSubmissionError = null;
+                state.fetchAllSubmissionLoading = false;
+
 
             })
     }
