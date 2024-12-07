@@ -25,7 +25,7 @@ const SubmitAssignment = () => {
   const assignmentId = params.assignmentId;
 
   const {
-    createdBy,
+    assignmentCreater,
     hasSubmitted,
     assignment,
     Fetchloading,
@@ -111,7 +111,7 @@ const SubmitAssignment = () => {
                   "Download Attachment"
                 )}
               </Button>
-              {user && user._id !== createdBy && (
+              {user && user._id !== assignmentCreater &&  (
                 <UserAssignmentSubmissionCard
                   uploadAssignmentHandler={uploadAssignmentHandler}
                   setFile={setFile}
