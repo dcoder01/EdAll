@@ -51,6 +51,22 @@ export const fetchAllQuizSubmission = createAsyncThunk('/enter/fetchAllQuizSubmi
 })
 
 
+export const fetchUserQuizSubmission = createAsyncThunk('/enter/fetchUserQuizSubmission', async ({quizId, userId}, thunkAPI) => {
+
+    try {
+
+
+        const { data } = await axios.get(`/api/v1/quiz/submission/?quizId=${quizId}&userId=${userId}`, { withCredentials: true })
+
+        return data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || "failed to fetch the users")
+    }
+
+
+})
+
+
 const quizSlice = createSlice({
     name: 'assignments',
     initialState: {
@@ -74,6 +90,10 @@ const quizSlice = createSlice({
         fetchAllQuizSubmissionError: null,
         fetchAllQuizSubmissionSuccess: false,
 
+        fetchUserQuizSubmissionLoading:false,
+        fetchUserQuizSubmissionSuccess:false,
+        fetchUserQuizSubmissionError:null,
+        userSubmission:[],
 
     },
     reducers: {
@@ -141,8 +161,19 @@ const quizSlice = createSlice({
             state.fetchAllQuizSubmissionError = null;
             state.fetchAllQuizSubmissionLoading = true;
             state.fetchAllQuizSubmissionSuccess = false;
-
-
+        }).addCase(fetchUserQuizSubmission.pending, (state, action) => {
+            state.fetchAllQuizSubmissionError = null;
+            state.fetchAllQuizSubmissionLoading = true;
+            state.fetchAllQuizSubmissionSuccess = false;
+        }).addCase(fetchUserQuizSubmission.rejected, (state, action) => {
+            state.fetchAllQuizSubmissionError = action.payload;
+            state.fetchAllQuizSubmissionLoading = false;
+            state.fetchAllQuizSubmissionSuccess = false;
+        }).addCase(fetchUserQuizSubmission.fulfilled, (state, action) => {
+            state.fetchAllQuizSubmissionError = null;
+            state.fetchAllQuizSubmissionLoading = false;
+            state.fetchAllQuizSubmissionSuccess = true;
+            state.userSubmission=action.payload.data.submission
         })
     }
 
