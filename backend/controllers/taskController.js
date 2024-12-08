@@ -282,7 +282,7 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
   if (!assignmentSubmission) {
     // console.log("b1");
 
-    return next(new ErrorHandler("Invalid assignment Id"), 404);
+    return next(new ErrorHandler("Invalid assignment Id", 404));
 
   }
   // console.log( assignmentSubmission);
