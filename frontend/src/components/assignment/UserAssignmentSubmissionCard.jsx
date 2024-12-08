@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Alert from "../common/Alert";
 import Spinner from "../common/Spinner";
 import { fetchUserAssignmentSubmission } from "../../store/assignments";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const UserAssignmentSubmissionCard = ({
   uploadAssignmentHandler,
@@ -19,19 +19,23 @@ const UserAssignmentSubmissionCard = ({
   downloadedSubmissionLoading,
 }) => {
   const dispatch = useDispatch();
+  const location=useLocation();
   const { user } = useSelector((state) => state.auth);
   const { submission, fetchUserSubmissionLoading } = useSelector(
     (state) => state.assignmentSlice
   );
   const params=useParams();
   const assignmentId=params.assignmentId;
+  const userId = user._id
 
   useEffect(() => {
     if (user) {
-      const userId = user._id
+     
       dispatch(fetchUserAssignmentSubmission({ userId, assignmentId }));
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, location.pathname ]);
+
+  
 
   return (
     <div className="flex flex-col items-center p-6 border border-yellow-600 shadow-lg rounded-lg w-full max-w-sm sm:w-11/12 mx-auto my-4">
@@ -107,8 +111,10 @@ const UserAssignmentSubmissionCard = ({
           )}
         </Button>
       )}
+      
+      {/* problem is i am getting a submission from the backend if the submission exists but if not it is not updated */}
 
-      {submission && submission.grade && (
+      {submission && submission.grade && submission.assignmentId===assignmentId && (
         <div className="flex justify-between w-full mt-4">
           <span className="text-green-600 font-semibold">Grade Awarded:</span>
           <span className="font-bold">{submission.grade}</span>
