@@ -169,6 +169,27 @@ export const fetchAllSubmission = createAsyncThunk('/enter/fetchAllSubmission', 
     }
 })
 
+//grade assignment
+export const gradeAssignment = createAsyncThunk('/enter/gradeAssignment', async ({ assignmentId, mark, userId }, thunkAPI) => {
+    try {
+        // console.log(assignmentId);
+        // console.log(userId);
+        // console.log(mark);
+        const { data } = await axios.post(
+            `/api/v1/assignment/grade/${assignmentId}/${userId}`,
+            {mark},
+            { withCredentials: true }
+        );
+        // console.log(data);
+        return data;
+
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || "failed to fetch submission asssignment details")
+    }
+})
+
+
+
 
 
 
@@ -188,6 +209,7 @@ const AssignmentSlice = createSlice({
         assignment: null,
         submission: null,
         fetchUserSubmissionLoading: false,
+        fetchUserSubmissionError: null,
 
         Fetchloading: false,
         Fetchsuccess: false,
@@ -207,6 +229,10 @@ const AssignmentSlice = createSlice({
         fetchAllSubmissionError: null,
         fetchAllSubmissionSuccess: false,
         submissions: [],
+
+        gradeAssignmentLoading: false,
+        gradeAssignmentError: null,
+        gradeAssignmentSuccess: false,
 
 
     },
@@ -324,6 +350,7 @@ const AssignmentSlice = createSlice({
 
             }).addCase(fetchUserAssignmentSubmission.rejected, (state, action) => {
                 state.fetchUserSubmissionLoading = false;
+                state.fetchUserSubmissionError = action.payload
 
 
             }).addCase(fetchUserAssignmentSubmission.pending, (state, action) => {
@@ -347,6 +374,20 @@ const AssignmentSlice = createSlice({
                 state.fetchAllSubmissionError = null;
                 state.fetchAllSubmissionLoading = false;
 
+            }).addCase(gradeAssignment.rejected, (state, action) => {
+                state.gradeAssignmentError = action.payload;
+                state.gradeAssignmentLoading = false;
+                state.gradeAssignmentSuccess = false;
+
+            }).addCase(gradeAssignment.pending, (state, action) => {
+                state.gradeAssignmentError = null;
+                state.gradeAssignmentLoading = true;
+                state.gradeAssignmentSuccess = false;
+
+            }).addCase(gradeAssignment.fulfilled, (state, action) => {
+                state.gradeAssignmentError = null;
+                state.gradeAssignmentLoading = false;
+                state.gradeAssignmentSuccess = true;
 
             })
     }
