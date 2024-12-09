@@ -11,6 +11,7 @@ const QuizSubmission = require("../models/quizSubmission");
 
 const ErrorHandler = require('../utils/errorhandler');
 const classModel = require('../models/classModel');
+const { log } = require('console');
 
 
 // Function to handle uploading an assignment--teacher
@@ -81,75 +82,75 @@ exports.submitAssignment = catchAsyncErrors(async (req, res, next) => {
 
   try {
     const file = req.file;
-  const { assignmentId, classId } = req.body;
-  // console.log(assignmentId);
-  // console.log(classId);
+    const { assignmentId, classId } = req.body;
+    // console.log(assignmentId);
+    // console.log(classId);
 
 
-  // Check if assignmentId is valid
-  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
-  if (!isValidAssignmentId) {
-    return next(new ErrorHandler("Invalid assignment ID", 404));
-  }
+    // Check if assignmentId is valid
+    const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+    if (!isValidAssignmentId) {
+      return next(new ErrorHandler("Invalid assignment ID", 404));
+    }
 
-  // Check if classId is valid
-  const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
-  if (!isValidClassId) {
-    return next(new ErrorHandler("Invalid class ID", 404));
-  }
-  const requestedClass = await classModel.findById(classId);
-  if (!requestedClass) {
-    return next(new ErrorHandler("Invalid class ID", 404));
-  }
+    // Check if classId is valid
+    const isValidClassId = mongoose.Types.ObjectId.isValid(classId);
+    if (!isValidClassId) {
+      return next(new ErrorHandler("Invalid class ID", 404));
+    }
+    const requestedClass = await classModel.findById(classId);
+    if (!requestedClass) {
+      return next(new ErrorHandler("Invalid class ID", 404));
+    }
 
-  if (requestedClass.createdBy.equals(req.user._id)) {
-    return next(new ErrorHandler("you cannot submit", 401));
-  }
-  const requestedAssignment = await Assignment.findById(assignmentId);
-  if (!requestedAssignment) {
-    return next(new ErrorHandler("Invalid AssignmentId", 400));
+    if (requestedClass.createdBy.equals(req.user._id)) {
+      return next(new ErrorHandler("you cannot submit", 401));
+    }
+    const requestedAssignment = await Assignment.findById(assignmentId);
+    if (!requestedAssignment) {
+      return next(new ErrorHandler("Invalid AssignmentId", 400));
 
-  }
-  if (!req.file) return next(new ErrorHandler("Please Select a file", 400));
+    }
+    if (!req.file) return next(new ErrorHandler("Please Select a file", 400));
 
-  const hasSubmitted = await AssignmentSubmission.findOne({
-    user: req.user._id,
-    assignmentId,
-  });
-  if (hasSubmitted) {
-    return next(new ErrorHandler("Already submitted", 400))
-  }
+    const hasSubmitted = await AssignmentSubmission.findOne({
+      user: req.user._id,
+      assignmentId,
+    });
+    if (hasSubmitted) {
+      return next(new ErrorHandler("Already submitted", 400))
+    }
 
-  const fileName = `${req.user.name.replace(/\s+/g, '_')}_Assignment_${assignmentId}`;
-  // Upload file to Cloudinary
-  const fileResult = await new Promise((resolve, reject) => {
-    cloudinary.uploader.upload_stream({
-      resource_type: 'auto',
-      public_id: fileName,
-    }, (error, result) => {
-      if (error) {
-        return reject(new ErrorHandler('File upload failed', 500));
-      }
-      resolve(result);
-    }).end(file.buffer);
-  });
-  // console.log("Cloudinary upload result:", result);
-  const submission = await AssignmentSubmission.create({
-    user: req.user._id,
-    createdBy: requestedClass.createdBy,
-    classId,
-    assignmentId,
-    submission: fileResult.secure_url,
+    const fileName = `${req.user.name.replace(/\s+/g, '_')}_Assignment_${assignmentId}`;
+    // Upload file to Cloudinary
+    const fileResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({
+        resource_type: 'auto',
+        public_id: fileName,
+      }, (error, result) => {
+        if (error) {
+          return reject(new ErrorHandler('File upload failed', 500));
+        }
+        resolve(result);
+      }).end(file.buffer);
+    });
+    // console.log("Cloudinary upload result:", result);
+    const submission = await AssignmentSubmission.create({
+      user: req.user._id,
+      createdBy: requestedClass.createdBy,
+      classId,
+      assignmentId,
+      submission: fileResult.secure_url,
 
-  });
-
-
-  requestedAssignment.submissions.push(submission._id);
-
-  await requestedAssignment.save();
+    });
 
 
-  res.status(201).json(submission);
+    requestedAssignment.submissions.push(submission._id);
+
+    await requestedAssignment.save();
+
+
+    res.status(201).json(submission);
   } catch (error) {
     res.status(500).send(INTERNAL_SERVER_ERROR);
   }
@@ -271,7 +272,7 @@ exports.fetchUserAssignmentSubmissions = catchAsyncErrors(async (req, res, next)
 
 
   if (!isValidAssignmentId) {
-        // console.log("b2");
+    // console.log("b2");
     return next(new ErrorHandler("Invalid assignment ID", 404))
   }
   const assignmentSubmission = await AssignmentSubmission.findOne({
@@ -473,7 +474,58 @@ exports.getFileExtensionAssignmentSubmission = catchAsyncErrors(async (req, res,
 })
 
 
+exports.gradeAssignment = catchAsyncErrors(async (req, res, next) => {
 
+  const { mark } = req.body;
+  const assignmentId = req.params.assignmentId;
+  const userId = req.params.userId;
+
+  // console.log(assignmentId);
+  // console.log(userId);
+  // console.log(mark);
+  const isValidAssignmentId = mongoose.Types.ObjectId.isValid(assignmentId);
+  if (!isValidAssignmentId) {
+    return next(new ErrorHandler("Invalid assignment ID", 404))
+  }
+
+
+  const requestedAssignment = await Assignment.findById(assignmentId);
+  if (!requestedAssignment) {
+    return next(new ErrorHandler("Invalid assignment ID", 404))
+  }
+
+  const userAssignmentSubmission = await AssignmentSubmission.findOne({
+    assignmentId,
+    user: userId,
+  });
+
+  if (!userAssignmentSubmission) {
+    return next(new ErrorHandler("Submission not found", 404))
+  }
+
+  if (!userAssignmentSubmission.createdBy.equals(req.user._id))
+    return next(new ErrorHandler("Not authorized", 401));
+
+
+  if (requestedAssignment.marks < mark) {
+    return next(new ErrorHandler("Invalid grade", 400));
+  }
+
+  if (userAssignmentSubmission.grade) {
+    return next(new ErrorHandler("Grade exists", 400));
+  }
+
+  userAssignmentSubmission.grade = mark;
+
+
+  await userAssignmentSubmission.save();
+  res.status(200).json({
+    success: true,
+    message: "successfully graded assignment!"
+  });
+
+
+})
 
 
 
@@ -579,7 +631,7 @@ exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
 
   })
   let hasSubmitted = false;
-  if (quizSubmissionByUser ) {
+  if (quizSubmissionByUser) {
     hasSubmitted = true;
   }
 
@@ -590,7 +642,7 @@ exports.fetchQuizInfo = catchAsyncErrors(async (req, res, next) => {
   );
 
   // console.log(hasSubmitted);
-  
+
 
   res.status(200).json({
     data: {
@@ -684,7 +736,7 @@ exports.submitQuiz = catchAsyncErrors(async (req, res, next) => {
   quiz.questions.forEach((question, ind) => {
     let marksScored = 0;
     //userSubmittedResponse is an array coming from frntend
-    if (userSubmittedResponse[ind] === question.correctOption+1) {
+    if (userSubmittedResponse[ind] === question.correctOption + 1) {
       marksScored = question.correctMarks;
     } else if (
       //-1 means no subission-- 0 marks

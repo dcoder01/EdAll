@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions, downloadAssignment, downloadAssignmentSubmission, getFileExtensionAssignment, getFileExtensionAssignmentSubmission } = require("../controllers/taskController");
+const { createAssignment, submitAssignment, fetchAssignment, fetchPendingAssignments, fetchAssignmentSubmissions, fetchUserAssignmentSubmissions, downloadAssignment, downloadAssignmentSubmission, getFileExtensionAssignment, getFileExtensionAssignmentSubmission, gradeAssignment } = require("../controllers/taskController");
 const multer = require("multer");
 const { isAuthenticatedUser, authorizedRoles} =require('../middleware/auth');
 const { route } = require("./userRoute");
@@ -36,6 +36,10 @@ router.get('/download/submission/:assignmentId', isAuthenticatedUser, downloadAs
 router.get('/getFileExtension/:assignmentId', isAuthenticatedUser, getFileExtensionAssignment)
 
 router.get('/submission/getFileExtension/:assignmentId', isAuthenticatedUser, getFileExtensionAssignmentSubmission)
+
+//grading assignment route
+
+router.post('/grade/:assignmentId/:userId', isAuthenticatedUser,gradeAssignment )
 
 // router.get('/test/:assignmentId', isAuthenticatedUser, test);
 
