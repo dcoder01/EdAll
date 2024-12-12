@@ -29,6 +29,9 @@ import ViewAssignmentSubmission from './pages/assignment/ViewAssignmentSubmissio
 import ViewQuizSubmission from './pages/quiz/ViewQuizSubmission';
 import ViewQuizSubmissionOfStudent from './pages/quiz/ViewQuizSubmissionOfStudent';
 import ViewAssignmentSubmissionOfStudent from './pages/assignment/ViewAssignmentSubmissionOfStudent';
+import CreateMeet from './pages/meet/CreateMeet';
+import { Room } from '@mui/icons-material';
+import MeetScreen from './pages/meet/MeetScreen';
 
 
 function App() {
@@ -159,6 +162,20 @@ function App() {
           isAuthenticated={isAuthenticated}
           user={user}
         ><ViewAssignmentSubmissionOfStudent/>
+        </CheckAuth>} />
+
+
+
+        <Route path='/join/meet' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><CreateMeet/>
+        </CheckAuth>} />
+
+        <Route path='/join/meet/:meetId' element={<CheckAuth
+          isAuthenticated={isAuthenticated}
+          user={user}
+        ><MeetScreen/>
         </CheckAuth>} />
         
 

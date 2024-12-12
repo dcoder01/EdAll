@@ -42,9 +42,9 @@ const EnterClass = () => {
     }
   }, [currentClass, user, classId, dispatch]);
 
-  const joinMeetScreen = () => {
-    if (roomId) navigate(`/join/meet?roomId=${roomId}`);
-  };
+  // const joinMeetScreen = () => {
+  //   if (roomId) navigate(`/join/meet?roomId=${roomId}`);
+  // };
 
   const createMeetScreen = () => {
     navigate("/join/meet");
@@ -73,10 +73,10 @@ const EnterClass = () => {
           {/* Meeting Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Video Meeting</CardTitle>
+              <CardTitle>Live class</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Input
+              {/* <Input
                 placeholder="Enter meet ID"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
@@ -87,22 +87,22 @@ const EnterClass = () => {
                 onClick={joinMeetScreen}
               >
                 Join meet
-              </Button>
+              </Button> */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
+                {/* <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
                     Or
                   </span>
-                </div>
+                </div> */}
               </div>
               <Button
                 className="w-full"
                 onClick={createMeetScreen}
               >
-                Create new meet
+                Create or Join meet
               </Button>
             </CardContent>
           </Card>
