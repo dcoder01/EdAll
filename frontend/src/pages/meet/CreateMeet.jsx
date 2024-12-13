@@ -5,7 +5,8 @@ import { v1 as uuid } from "uuid";
 import { useNavigate, useParams } from "react-router";
 import { Copy } from "lucide-react";
 import MeetCreation from "@/components/meet/MeetCreation";
-import { createMeeting, getToken } from "@/services/VideoSdkApi";
+import { createMeeting } from "@/services/VideoSdkApi";
+import { getToken } from "@/store/meet";
 import { toast } from 'react-toastify';
 import { fetchEnterClassDetails } from "@/store/classSlice";
 
@@ -20,6 +21,8 @@ const CreateMeet = () => {
   const [authToken, setAuthToken] = useState('null');
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const {currentClass}=useSelector((state)=>state.class)
+
+  
   const classId=params.classId;
   useEffect(() => {
     if (!isAuthenticated) navigate("/auth/login");
@@ -27,31 +30,32 @@ const CreateMeet = () => {
     
   }, [ isAuthenticated]);
 
-  // useEffect(()=>{
-    
-  //     if(currentClass &&currentClass.createdby===){
-  //   }
-  // }, [])
 
   const joinMeetHandler = async () => {
     setMeetId('')
-    navigate(`/join/meet/${meetId}`)
+    navigate(`/join/meet/${classId}/${meetId}`)
   }
   const createMeetHandler = async () => {
     try {
-      const token = await getToken()
-      const meetid = await createMeeting({ token })
-      setAuthToken(token)
+      
+      let token=null;
+ 
+      if (!token) {
+        const tokenResult =await dispatch(getToken()).unwrap();
+        token=tokenResult.token
+        // console.log(token);
+        
+      }
 
-      setMeetId(meetid);
-
+      if (token) {
+        const meetid = await createMeeting({ token });
+        setMeetId(meetid);
+      }
     } catch (error) {
       console.error("Error creating meeting:", error);
-    }
-
-    <p>meetId: {meetId}</p>
-
-  }
+      toast.error("Failed to create meeting");
+    } 
+  };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(meetId).then(

@@ -15,14 +15,4 @@ export const createMeeting = async ({ token }) => {
 };
   
   //itne sa kaam ke liye kya axios use karu
-  export const getToken = async () => {
-      const res = await fetch(`http://localhost:4000/get-token`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const { token } = await res.json();
-      // console.log(token);
-      return token;
-    };
+//karna hi pada->i needed the token

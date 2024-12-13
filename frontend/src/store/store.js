@@ -6,6 +6,7 @@ import announcementReducer from "./announcement";
 import classUserReducer from './classUser'
 import assignmentReducer from './assignments'
 import quizReducer from './quiz'
+import meetReducer from './meet'
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -15,6 +16,7 @@ const store = configureStore({
     classUserSlice:classUserReducer,
     assignmentSlice:assignmentReducer,
     quizSlice:quizReducer,
+    meetSlice:meetReducer,
     
   },
 });
