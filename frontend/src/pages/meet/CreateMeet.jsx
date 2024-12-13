@@ -1,25 +1,37 @@
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { v1 as uuid } from "uuid";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Copy } from "lucide-react";
 import MeetCreation from "@/components/meet/MeetCreation";
 import { createMeeting, getToken } from "@/services/VideoSdkApi";
 import { toast } from 'react-toastify';
+import { fetchEnterClassDetails } from "@/store/classSlice";
 
 
 
 
 const CreateMeet = () => {
   const navigate = useNavigate()
+  const params=useParams();
+  const dispatch=useDispatch()
   const [meetId, setMeetId] = useState('')
   const [authToken, setAuthToken] = useState('null');
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const {currentClass}=useSelector((state)=>state.class)
+  const classId=params.classId;
   useEffect(() => {
     if (!isAuthenticated) navigate("/auth/login");
+    dispatch(fetchEnterClassDetails(classId));
     
   }, [ isAuthenticated]);
+
+  // useEffect(()=>{
+    
+  //     if(currentClass &&currentClass.createdby===){
+  //   }
+  // }, [])
 
   const joinMeetHandler = async () => {
     setMeetId('')
@@ -54,7 +66,7 @@ const CreateMeet = () => {
 
   return (
     <div>
-      <MeetCreation meetId={meetId} setMeetId={setMeetId} joinMeetHandler={joinMeetHandler} createMeetHandler={createMeetHandler} />
+      <MeetCreation currentClass={currentClass} user={user} meetId={meetId} setMeetId={setMeetId} joinMeetHandler={joinMeetHandler} createMeetHandler={createMeetHandler} />
       {meetId && (
         <div className="mt-4 flex-col items-center space-x-2">
           <p className="text-lg font-medium">Meet ID: {meetId}</p>

@@ -47,7 +47,7 @@ const EnterClass = () => {
   // };
 
   const createMeetScreen = () => {
-    navigate("/join/meet");
+    navigate(`/join/meet/${classId}`);
   };
 
   if (classLoading) {

@@ -166,13 +166,13 @@ function App() {
 
 
 
-        <Route path='/join/meet' element={<CheckAuth
+        <Route path='/join/meet/:classId' element={<CheckAuth
           isAuthenticated={isAuthenticated}
           user={user}
         ><CreateMeet/>
         </CheckAuth>} />
 
-        <Route path='/join/meet/:meetId' element={<CheckAuth
+        <Route path='/join/meet/:classId/:meetId' element={<CheckAuth
           isAuthenticated={isAuthenticated}
           user={user}
         ><MeetScreen/>
