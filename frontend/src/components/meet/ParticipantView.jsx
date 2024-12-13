@@ -73,7 +73,7 @@ const ParticipantView = (props) => {
     return (
         <div 
             ref={containerRef}
-            className={`relative p-2 ${webcamOn ? 'bg-gray-800' : 'bg-gray-900'}`} 
+            className={`relative p-1 rounded-lg ${webcamOn ? 'bg-gray-800' : 'bg-gray-900'}`} 
             style={{ 
                 aspectRatio: '16/9',
                 display: 'flex',
