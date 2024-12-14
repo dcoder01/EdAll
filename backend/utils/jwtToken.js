@@ -2,7 +2,16 @@
 
 const sendToken = (user, statusCode, res) => {
     const token = user.getJWTToken();
-  
+    const safeUser = {
+      _id:user._id,
+      name: user.name,
+      email: user.email,
+      picture:user.picture,
+      role: user.role,
+      createdClasses:user.createdClasses,
+      joinedClasses:user.joinedClasses,
+      createdAt: user.createdAt,
+    };
     // options for cookie
     const options = {
       expires: new Date(
@@ -13,7 +22,7 @@ const sendToken = (user, statusCode, res) => {
   
     res.status(statusCode).cookie("token", token, options).json({
       success: true,
-      user,
+      user:safeUser,
       token,
     });
   };
