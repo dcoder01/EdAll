@@ -52,7 +52,7 @@ const CreateMeet = () => {
         setMeetId(meetid);
       }
     } catch (error) {
-      console.error("Error creating meeting:", error);
+      // console.error("Error creating meeting:", error);
       toast.error("Failed to create meeting");
     } 
   };
@@ -63,7 +63,8 @@ const CreateMeet = () => {
         toast.success("copied to clipboard!");
       },
       (err) => {
-        console.error("Error copying Meet ID:", err);
+        // console.error("Error copying Meet ID:", err);
+        toast.error("failed to copy meet Id")
       }
     );
   };

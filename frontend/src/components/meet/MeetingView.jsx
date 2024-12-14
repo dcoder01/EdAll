@@ -9,18 +9,21 @@ import PresenterView from './PresenterView';
 import Spinner from '../../components/common/Spinner'
 import Controls from './Controls';
 import ParticipantView from './ParticipantView';
+import { toast} from 'react-toastify';
 const MeetingView = (props) => {
     const [joined, setJoined] = useState(null);
     const { join, participants, presenterId } = useMeeting({
         onMeetingJoined: () => {
             setJoined("JOINED");
-            console.log("Meeting joined successfully");
+            // console.log("Meeting joined successfully");
+            toast.success("meeting joined successfully!")
         },
         onMeetingLeft: () => {
             props.onMeetingLeave();
         },
         onError: (error) => {
-            console.error("Meeting join error:", error);
+            // console.error("Meeting join error:", error);
+            toast.error("Meeting join error")
             setJoined("ERROR");
         }
     });
@@ -30,7 +33,8 @@ const MeetingView = (props) => {
             setJoined("JOINING");
             join();
         } catch (error) {
-            console.error("Failed to join meeting:", error);
+            // console.error("Failed to join meeting:", error);
+            toast.error("Failed to join meeting")
             setJoined("ERROR");
         }
     };

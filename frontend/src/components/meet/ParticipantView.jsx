@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParticipant } from "@videosdk.live/react-sdk";
 import ReactPlayer from "react-player";
 import { Maximize2, Minimize2 } from 'lucide-react';
-
+import { toast} from 'react-toastify';
 const ParticipantView = (props) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const videoRef = useRef(null);
@@ -36,7 +36,8 @@ const ParticipantView = (props) => {
                 micRef.current
                     .play()
                     .catch((error) =>
-                        console.error("audioElem.current.play() failed", error)
+                        // console.error("audioElem.current.play() failed", error)
+                        toast.error("audioElem.current.play() failed")
                     );
             } else {
                 micRef.current.srcObject = null;
@@ -50,11 +51,13 @@ const ParticipantView = (props) => {
 
         if (!document.fullscreenElement) {
             element.requestFullscreen().catch((err) => {
-                console.error("Failed to enter fullscreen:", err);
+                // console.error("Failed to enter fullscreen:", err);
+                toast.error("Failed to enter fullscreen")
             });
         } else {
             document.exitFullscreen().catch((err) => {
-                console.error("Failed to exit fullscreen:", err);
+                // console.error("Failed to exit fullscreen:", err);
+                toast.error("Failed to exit fullscreen")
             });
         }
     };
@@ -96,7 +99,8 @@ const ParticipantView = (props) => {
                         width="100%"
                         height="100%"
                         onError={(err) => {
-                            console.log(err, "participant video error");
+                            // console.log(err, "participant video error");
+                            toast.error("participant video error")
                         }}
                     />
                     <button 

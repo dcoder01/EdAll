@@ -7,6 +7,7 @@ import {
 
 } from "@videosdk.live/react-sdk";
 import ReactPlayer from "react-player";
+import { toast} from 'react-toastify';
 const PresenterView = ({ presenterId }) => {
     const { screenShareStream, screenShareOn } = useParticipant(presenterId);
 
@@ -38,7 +39,8 @@ const PresenterView = ({ presenterId }) => {
                 height={"100%"}
                 width={"100%"}
                 onError={(err) => {
-                    console.log(err, "presenter video error");
+                    // console.log(err, "presenter video error");
+                    toast.error("presenter video error")
                 }}
             />
         </>
