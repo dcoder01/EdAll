@@ -19,13 +19,25 @@ app.get("/get-token", (req, res) => {
   res.json({ token });
 });
 
+
+//connecting database
+connectDatabase(process.env.MONGO_URL)
+    .then((data) => {
+        console.log(`mongodb connected with server: ${data.connection.host}`);
+
+    })
+// .catch((err)=>{
+//     console.log(err);
+
+// }) 
+
+
 process.on("uncaughtException", err => {
     console.log(`Error: ${err.message}`);
     console.log(`shutting down the server due to uncaught exception`);
     process.exit(1)
 
 })
-
 
 
 //unhandled promise rejection
@@ -40,18 +52,6 @@ process.on('unhandledRejection', err => {
     
 
 })
-
-//connecting database
-connectDatabase(process.env.MONGO_URL)
-    .then((data) => {
-        console.log(`mongodb connected with server: ${data.connection.host}`);
-
-    })
-// .catch((err)=>{
-//     console.log(err);
-
-// }) 
-
  server.listen(process.env.PORT, () => {
     console.log("server is working", process.env.PORT);
 
