@@ -4,7 +4,7 @@ import { act } from "react";
 
 export const fetchQuiz = createAsyncThunk('/enter/fetchQuiz', async (quizId, thunkAPI) => {
     try {
-        const { data } = await axios.get(`/api/v1/quiz/fetch/${quizId}`, { withCredentials: true })
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/quiz/fetch/${quizId}`, { withCredentials: true })
         // console.log(data);
         return data;
 
@@ -24,7 +24,7 @@ export const submitQuiz = createAsyncThunk('/enter/submitQuiz', async ({ quizId,
             submission
         }
         // console.log(quizData);
-        const { data } = await axios.post(`/api/v1/quiz/submit/`, quizData, { withCredentials: true })
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/quiz/submit/`, quizData, { withCredentials: true })
         // console.log(data.data);
 
         return data;
@@ -40,7 +40,7 @@ export const fetchAllQuizSubmission = createAsyncThunk('/enter/fetchAllQuizSubmi
     try {
 
 
-        const { data } = await axios.get(`/api/v1/quiz/submissions/${quizId}`, { withCredentials: true })
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/quiz/submissions/${quizId}`, { withCredentials: true })
 
         return data;
     } catch (error) {
@@ -56,7 +56,7 @@ export const fetchUserQuizSubmission = createAsyncThunk('/enter/fetchUserQuizSub
     try {
 
 
-        const { data } = await axios.get(`/api/v1/quiz/submission/?quizId=${quizId}&userId=${userId}`, { withCredentials: true })
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/quiz/submission/?quizId=${quizId}&userId=${userId}`, { withCredentials: true })
 
         return data;
     } catch (error) {

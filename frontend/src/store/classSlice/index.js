@@ -4,7 +4,7 @@ import axios from 'axios';
 // Async action for fetching classes
 export const fetchClasses = createAsyncThunk('class/fetchClasses', async (_, thunkAPI) => {
   try {
-    const { data } = await axios.get('/api/v1/class/fetch', { withCredentials: true });
+    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/class/fetch`, { withCredentials: true });
    
     
     return data.classes;
@@ -16,7 +16,7 @@ export const fetchClasses = createAsyncThunk('class/fetchClasses', async (_, thu
 // Async action for creating a class
 export const createClass = createAsyncThunk('class/createClass', async ({ className, subject, room }, thunkAPI) => {
   try {
-    const { data } = await axios.post('/api/v1/class/create', { className, subject, room }, { withCredentials: true });
+    const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/class/create`, { className, subject, room }, { withCredentials: true });
     return data;
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to create class');
@@ -27,7 +27,7 @@ export const createClass = createAsyncThunk('class/createClass', async ({ classN
 export const joinClass = createAsyncThunk('class/joinClass', async ({classId}, thunkAPI) => {
   try {
     // console.log("Class Code:", classId);
-    const { data } = await axios.post('/api/v1/class/join',  {classId} , { withCredentials: true });
+    const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/class/join`,  {classId} , { withCredentials: true });
     return data;
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to join class');
@@ -38,7 +38,7 @@ export const fetchEnterClassDetails = createAsyncThunk(
   'class/fetchEnterClassDetails',
   async (classId, thunkAPI) => {
     try {
-      const { data } = await axios.get(`/api/v1/class/fetch/${classId}`, { withCredentials: true });
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/class/fetch/${classId}`, { withCredentials: true });
       return data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to fetch class details');

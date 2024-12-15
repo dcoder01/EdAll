@@ -5,7 +5,7 @@ export const fetchAnnouncements = createAsyncThunk(
   'announcements/fetchAnnouncements',
   async (classId, thunkAPI) => {
     try {
-      const { data } = await axios.get(`/api/v1/announcement/fetch/${classId}`, { withCredentials: true });
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/announcement/fetch/${classId}`, { withCredentials: true });
       return data;
     //   TODO:
     } catch (err) {
@@ -19,7 +19,7 @@ export const createAnnouncement = createAsyncThunk(
   async ({ classId, content }, thunkAPI) => {
 
     try {
-      const { data } = await axios.post(`/api/v1/announcement/create/${classId}`, { content }, { withCredentials: true });
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/announcement/create/${classId}`, { content }, { withCredentials: true });
       thunkAPI.dispatch(fetchAnnouncements(classId));
       return data;
     } catch (err) {
@@ -32,11 +32,11 @@ export const createAnnouncement = createAsyncThunk(
 export const deleteAnnouncement = createAsyncThunk(
   'announcements/deleteAnnouncement',
   async ( announcementId , thunkAPI) => {
-    // console.log(announcementId);
+    // console.log();
     
     try {
-     const {data}= await axios.delete(`/api/v1/announcement/delete/${announcementId}`, { withCredentials: true });
-    //  console.log(data);
+     const {data}= await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/announcement/delete/${announcementId}`, { withCredentials: true });
+    //  console.log(dataannouncementId);
       return data; // Return the announcementId for deletion confirmation
       
     } catch (err) {

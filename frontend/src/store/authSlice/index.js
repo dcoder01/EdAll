@@ -4,7 +4,7 @@ import axios from 'axios';
 // Async Thunks for login and register
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
-    const response = await axios.post('/api/v1/user/login', userData);
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/user/login`, userData,{withCredentials:true});
     // console.log(response);
 
     return response.data;
@@ -17,7 +17,7 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
 
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
   try {
-    const response = await axios.post('/api/v1/user/register', userData);
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/user/register`, userData,{withCredentials:true});
  
     return response.data;
   } catch (error) {
@@ -31,7 +31,7 @@ export const register = createAsyncThunk('auth/register', async (userData, thunk
 // Thunk for logging out (if needed)
 export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   try {
-    await axios.get('/api/v1/user/logout');
+    await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/logout`,{withCredentials:true});
  
     return {};
   } catch (error) {
@@ -44,7 +44,9 @@ export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
 
 export const checkAuth= createAsyncThunk('/auth/checkAuth', async()=>{
   try {
-    const response = await axios.get('/api/v1/user/check-auth',
+    console.log(import.meta.env.VITE_API_URL);
+    
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/check-auth`,
       {
         withCredentials: true,
         headers: {
@@ -149,6 +151,6 @@ const authSlice = createSlice({
   },
 });
 
-// Export actions and reducer
+
 export const { setUser } = authSlice.actions;
 export default authSlice.reducer;

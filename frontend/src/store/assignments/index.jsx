@@ -4,7 +4,7 @@ import { act } from "react";
 export const fetchAssignments = createAsyncThunk('/enter/fetchAssignments', async (classId, thunkAPI) => {
 
     try {
-        const { data } = await axios.get(`/api/v1/quiz/fetch/all/${classId}`, { withCredentials: true })
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/quiz/fetch/all/${classId}`, { withCredentials: true })
         // console.log(data.data);
 
         return data;
@@ -21,7 +21,7 @@ export const createQuiz = createAsyncThunk('/enter/createQuiz', async ({ classId
     try {
         // console.log(classId);
         // console.log(title);
-        const { data } = await axios.post(`/api/v1/quiz/create`, { classId, title, questions }, { withCredentials: true })
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/quiz/create`, { classId, title, questions }, { withCredentials: true })
 
         // console.log(data);
 
@@ -36,7 +36,7 @@ export const createQuiz = createAsyncThunk('/enter/createQuiz', async ({ classId
 
 export const createAssignment = createAsyncThunk('/enter/createAssginment', async (formData, thunkAPI) => {
     try {
-        const { data } = await axios.post(`/api/v1/assignment/create`, formData, { withCredentials: true });
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/assignment/create`, formData, { withCredentials: true });
         // console.log(data);
         return data;
 
@@ -48,7 +48,7 @@ export const createAssignment = createAsyncThunk('/enter/createAssginment', asyn
 //fetch individual assignment
 export const fetchAssignment = createAsyncThunk('/enter/assignmentDetails', async (assignmentId) => {
     try {
-        const { data } = await axios.get(`/api/v1/assignment/fetch/${assignmentId}`, { withCredentials: true })
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/assignment/fetch/${assignmentId}`, { withCredentials: true })
         // console.log(data);
 
         return data;
@@ -60,7 +60,7 @@ export const fetchAssignment = createAsyncThunk('/enter/assignmentDetails', asyn
 //upload assignment
 export const uploadSubmission = createAsyncThunk('/enter/UploadSubmission', async (formData, thunkAPI) => {
     try {
-        const { data } = await axios.post(`/api/v1/assignment/submit`, formData, { withCredentials: true });
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/assignment/submit`, formData, { withCredentials: true });
         // console.log(formData);
         return data;
 
@@ -73,7 +73,7 @@ export const uploadSubmission = createAsyncThunk('/enter/UploadSubmission', asyn
 export const downloadAssignment = createAsyncThunk('/enter/downloadAssignment', async (assignmentId, thunkAPI) => {
     try {
         const response = await axios.get(
-            `/api/v1/assignment/getFileExtension/${assignmentId}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/getFileExtension/${assignmentId}`,
             { withCredentials: true }
         );
 
@@ -82,7 +82,7 @@ export const downloadAssignment = createAsyncThunk('/enter/downloadAssignment', 
 
         // Fetch the file itself
         const fileResponse = await axios.get(
-            `/api/v1/assignment/download/${assignmentId}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/download/${assignmentId}`,
             {
                 withCredentials: true, responseType: 'blob',
             }
@@ -111,14 +111,14 @@ export const downloadSubmission = createAsyncThunk('/enter/downloadSubmission', 
 
         const queryString = userId ? `?userId=${userId}` : ``;
         const response = await axios.get(
-            `/api/v1/assignment/submission/getFileExtension/${assignmentId}${queryString}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/submission/getFileExtension/${assignmentId}${queryString}`,
             { withCredentials: true }
         );
         const fileExtension = response.data?.data?.fileExtension || "";
         // console.log(response.data);
 
         const fileResponse = await axios.get(
-            `/api/v1/assignment/download/submission/${assignmentId}${queryString}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/download/submission/${assignmentId}${queryString}`,
             { withCredentials: true, responseType: 'blob' }
         );
         const blob = new Blob([fileResponse.data]);
@@ -143,7 +143,7 @@ export const fetchUserAssignmentSubmission = createAsyncThunk('/enter/fetchUserS
         // console.log(assignmentId);
         // console.log(userId);
         const { data } = await axios.get(
-            `/api/v1/assignment/submission/?assignmentId=${assignmentId}&userId=${userId}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/submission/?assignmentId=${assignmentId}&userId=${userId}`,
             { withCredentials: true }
         );
         // console.log(data);
@@ -158,7 +158,7 @@ export const fetchAllSubmission = createAsyncThunk('/enter/fetchAllSubmission', 
         // console.log(assignmentId);
         // console.log(userId);
         const { data } = await axios.get(
-            `/api/v1/assignment/submissions/${assignmentId}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/submissions/${assignmentId}`,
             { withCredentials: true }
         );
         // console.log(data);
@@ -176,7 +176,7 @@ export const gradeAssignment = createAsyncThunk('/enter/gradeAssignment', async 
         // console.log(userId);
         // console.log(mark);
         const { data } = await axios.post(
-            `/api/v1/assignment/grade/${assignmentId}/${userId}`,
+            `${import.meta.env.VITE_API_URL}/api/v1/assignment/grade/${assignmentId}/${userId}`,
             {mark},
             { withCredentials: true }
         );

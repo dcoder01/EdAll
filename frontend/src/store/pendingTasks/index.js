@@ -16,8 +16,8 @@ export const fetchPendingTasks = createAsyncThunk(
 
       // Make both API calls in parallel
       const [quizzesResponse, assignmentsResponse] = await Promise.all([
-        axios.get(`/api/v1/quiz/fetch/pending/${classId}`, config),
-        axios.get(`/api/v1/assignment/fetch/pending/${classId}`, config),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/quiz/fetch/pending/${classId}`, config),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/assignment/fetch/pending/${classId}`, config),
       ]);
 
       // Extract and return the combined data

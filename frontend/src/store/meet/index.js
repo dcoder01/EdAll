@@ -2,14 +2,15 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const getToken = createAsyncThunk(
-  'meet/getToken', 
+  'meet/getToken',
   async (_, thunkAPI) => {
     try {
-      const {data} = await axios.get('http://localhost:4000/get-token', { 
-        headers: { "Content-Type": "application/json" } 
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/get-token`, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" }
       });
-    //   console.log("token",data.token);
-      
+      //   console.log("token",data.token);
+
       return data
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -39,7 +40,7 @@ const meetSlice = createSlice({
         state.loading = false;
         // console.log(action.payload.token);
         state.token = action.payload.token;
-        
+
         state.success = true;
         state.error = null;
       })

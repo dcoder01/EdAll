@@ -3,7 +3,7 @@ import axios from "axios";
 export const fetchAllUsers=createAsyncThunk('/enter/fetchAllUsers', async(classId, thunkAPI)=>{
 
     try {
-        const {data}=await axios.get(`/api/v1/class/users/${classId}`, {withCredentials:true})
+        const {data}=await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/class/users/${classId}`, {withCredentials:true})
         // console.log(data.data.usersInClass.createdBy);
         
         return {
