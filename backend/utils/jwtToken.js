@@ -2,6 +2,8 @@
 
 const sendToken = (user, statusCode, res) => {
     const token = user.getJWTToken();
+    // console.log(token);
+    
     const safeUser = {
       _id:user._id,
       name: user.name,
@@ -23,6 +25,7 @@ const sendToken = (user, statusCode, res) => {
     res.status(statusCode).cookie("token", token, options).json({
       success: true,
       user:safeUser,
+      // user,
       token,
     });
   };
