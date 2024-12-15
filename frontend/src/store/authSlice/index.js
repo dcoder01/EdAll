@@ -44,7 +44,7 @@ export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
 
 export const checkAuth= createAsyncThunk('/auth/checkAuth', async()=>{
   try {
-    console.log(import.meta.env.VITE_API_URL);
+    // console.log(import.meta.env.VITE_API_URL);
     
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/check-auth`,
       {

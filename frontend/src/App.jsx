@@ -32,7 +32,8 @@ import ViewAssignmentSubmissionOfStudent from './pages/assignment/ViewAssignment
 import CreateMeet from './pages/meet/CreateMeet';
 import { Room } from '@mui/icons-material';
 import MeetScreen from './pages/meet/MeetScreen';
-
+import axios from 'axios';
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 function App() {
   const dispatch = useDispatch();

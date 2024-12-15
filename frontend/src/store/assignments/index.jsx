@@ -36,7 +36,9 @@ export const createQuiz = createAsyncThunk('/enter/createQuiz', async ({ classId
 
 export const createAssignment = createAsyncThunk('/enter/createAssginment', async (formData, thunkAPI) => {
     try {
-        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/assignment/create`, formData, { withCredentials: true });
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/assignment/create`, formData, { withCredentials: true, headers:{
+            "Content-Type": "multipart/form-data",
+        } });
         // console.log(data);
         return data;
 
@@ -60,7 +62,9 @@ export const fetchAssignment = createAsyncThunk('/enter/assignmentDetails', asyn
 //upload assignment
 export const uploadSubmission = createAsyncThunk('/enter/UploadSubmission', async (formData, thunkAPI) => {
     try {
-        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/assignment/submit`, formData, { withCredentials: true });
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/assignment/submit`, formData, { withCredentials: true ,
+            headers:{"Content-Type": "multipart/form-data"},
+        });
         // console.log(formData);
         return data;
 
