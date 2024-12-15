@@ -5,7 +5,7 @@ const errorMiddleware = require('./middleware/error.js')
 const app = express()
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: process.env.CLIENT_BASE_URL,
         methods: ['GET', 'POST', 'DELETE', 'PUT'],
         credentials: true,
         allowedHeaders: [

@@ -1,7 +1,7 @@
+require("dotenv").config();
 const http = require('http');
 const app = require('./app');
 const connectDatabase = require('./config/database');
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const server = http.createServer(app);
 
@@ -26,11 +26,10 @@ connectDatabase(process.env.MONGO_URL)
         console.log(`mongodb connected with server: ${data.connection.host}`);
 
     })
-// .catch((err)=>{
-//     console.log(err);
-
-// }) 
-
+    // .catch((err) => {
+    //     console.error("Failed to connect to MongoDB after retries. Exiting...");
+    //     process.exit(1); 
+    // });
 
 process.on("uncaughtException", err => {
     console.log(`Error: ${err.message}`);
