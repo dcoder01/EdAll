@@ -8,7 +8,7 @@ import AuthLayout from './components/auth/Layout'
 import Login from './pages/auth/Login'
 import Home from './pages/Home'
 import CheckAuth from './components/common/checkAuth';
-import NotFound from './pages/notFound/index';
+import NotFound from './pages/notFound';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,7 +29,7 @@ import ViewQuizSubmission from './pages/quiz/ViewQuizSubmission';
 import ViewQuizSubmissionOfStudent from './pages/quiz/ViewQuizSubmissionOfStudent';
 import ViewAssignmentSubmissionOfStudent from './pages/assignment/ViewAssignmentSubmissionOfStudent';
 import CreateMeet from './pages/meet/CreateMeet';
-import { Room } from '@mui/icons-material';
+
 import MeetScreen from './pages/meet/MeetScreen';
 import axios from 'axios';
 import AuthRegister from './pages/auth/register';
