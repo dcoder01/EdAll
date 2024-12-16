@@ -8,7 +8,7 @@ import AuthLayout from './components/auth/Layout'
 import Login from './pages/auth/Login'
 import Home from './pages/Home'
 import CheckAuth from './components/common/checkAuth';
-import NotFound from './pages/notFound';
+import NotFound from './pages/notFound/NotFound';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
