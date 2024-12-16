@@ -6,7 +6,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import toastify CSS
 import AuthLayout from './components/auth/Layout'
 import Login from './pages/auth/Login'
-import Register from './pages/auth/register'
 import Home from './pages/Home'
 import CheckAuth from './components/common/checkAuth';
 import NotFound from './pages/notFound/index';
@@ -33,6 +32,7 @@ import CreateMeet from './pages/meet/CreateMeet';
 import { Room } from '@mui/icons-material';
 import MeetScreen from './pages/meet/MeetScreen';
 import axios from 'axios';
+import AuthRegister from './pages/auth/register';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 function App() {
@@ -64,7 +64,7 @@ function App() {
           ><AuthLayout /></CheckAuth>
         }>
           <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
+          <Route path="register" element={<AuthRegister />} />
         </Route>
         <Route path='/home' element={
           <CheckAuth
