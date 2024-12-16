@@ -19,7 +19,9 @@ app.get("/get-token", (req, res) => {
   const token = jwt.sign(payload, SECRET_KEY, options);
   res.json({ token });
 });
-
+app.get("/", (req, res)=>{
+    res.json({message:"server deplyoed properly"})
+})
 
 //connecting database
 connectDatabase(process.env.MONGO_URL)
