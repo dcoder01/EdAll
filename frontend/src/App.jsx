@@ -32,7 +32,7 @@ import CreateMeet from './pages/meet/CreateMeet';
 
 import MeetScreen from './pages/meet/MeetScreen';
 import axios from 'axios';
-import AuthRegister from './pages/auth/register';
+import AuthRegister from './pages/auth/Register';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 function App() {
