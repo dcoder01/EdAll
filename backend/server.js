@@ -3,6 +3,7 @@ const http = require('http');
 const app = require('./app');
 const connectDatabase = require('./config/database');
 const jwt = require("jsonwebtoken");
+const { error } = require("console");
 const server = http.createServer(app);
 
 
@@ -27,8 +28,9 @@ connectDatabase(process.env.MONGO_URL)
 
     })
     .catch((err) => {
-        console.error("Failed to connect to MongoDB after retries. retrying...");
-        connectDatabase(process.env.MONGO_URL)
+        console.error("Failed to connect to MongoDB", err);
+ 
+        process.exit(1)
     });
 
 process.on("uncaughtException", err => {

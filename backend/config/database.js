@@ -3,11 +3,14 @@ const mongoose = require('mongoose')
 
 async function connectDatabase(url) {
     try {
-        return await mongoose.connect(url);
+        return await mongoose.connect(url, {
+            connectTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 5000
+        });
     } catch (error) {
         console.error("connection attempt failed");
-        // setTimeout(() => connectDatabase(url), 5000); 
+       
         throw error;
     }
 }
-module.exports=connectDatabase
+module.exports = connectDatabase
