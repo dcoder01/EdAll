@@ -26,10 +26,10 @@ connectDatabase(process.env.MONGO_URL)
         console.log(`mongodb connected with server: ${data.connection.host}`);
 
     })
-    // .catch((err) => {
-    //     console.error("Failed to connect to MongoDB after retries. Exiting...");
-    //     process.exit(1); 
-    // });
+    .catch((err) => {
+        console.error("Failed to connect to MongoDB after retries. retrying...");
+        connectDatabase(process.env.MONGO_URL)
+    });
 
 process.on("uncaughtException", err => {
     console.log(`Error: ${err.message}`);
