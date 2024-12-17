@@ -31,8 +31,18 @@ export const register = createAsyncThunk('auth/register', async (userData, thunk
 // Thunk for logging out (if needed)
 export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   try {
-    await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/logout`,{withCredentials:true});
- 
+    await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/logout`, {
+      withCredentials: true,
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+      },
+    });
+    
+    
+    localStorage.removeItem('user');
+    
     return {};
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data);

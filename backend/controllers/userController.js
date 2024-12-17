@@ -55,8 +55,6 @@ exports.logout = catchAsyncError(async (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: 'None',
-        domain: process.env.COOKIE_DOMAIN,
-        path: '/'
     });
 
     res.status(200).json({
